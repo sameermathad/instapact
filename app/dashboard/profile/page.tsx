@@ -28,7 +28,7 @@ import {
 import { getUserProfile, updateUserProfile, UserProfile } from '@/lib/user'
 import { cn } from '@/lib/utils'
 
-type SettingsTab = 'general' | 'legal' | 'branding' | 'payments' | 'notifications' | 'security'
+type SettingsTab = 'general' | 'legal' | 'branding' | 'payments' | 'billing' | 'notifications' | 'security'
 
 export default function ProfilePage() {
   const { user, loading } = useAuth()
@@ -140,6 +140,7 @@ export default function ProfilePage() {
     { id: 'legal', label: 'Legal Entity', icon: Building2 },
     { id: 'branding', label: 'Branding', icon: Palette, locked: true },
     { id: 'payments', label: 'Payments', icon: CreditCard },
+    { id: 'billing', label: 'Plan & Billing', icon: CreditCard },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
   ]
@@ -381,6 +382,69 @@ export default function ProfilePage() {
                   </div>
                 </CardFooter>
               </Card>
+            )}
+
+            {/* Billing Settings */}
+            {activeTab === 'billing' && (
+              <div className="space-y-6">
+                <Card className="shadow-none border-slate-200">
+                  <CardHeader>
+                    <CardTitle>Active Subscription</CardTitle>
+                    <CardDescription>You are currently on the free tier.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+                      <div>
+                        <p className="text-sm font-bold text-slate-900 capitalize">{profile.plan || 'Free'} Plan</p>
+                        <p className="text-xs text-slate-500">Perfect for getting started with professional agreements.</p>
+                      </div>
+                      <div className="px-2 py-1 text-[10px] font-bold bg-white border border-slate-200 text-slate-700 rounded-full uppercase tracking-wider">Active</div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                       <div className="p-3 border border-slate-100 rounded-lg bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Agreements Signatures</p>
+                          <p className="text-xl font-black text-slate-900">Unlimited</p>
+                          <p className="text-[9px] text-emerald-600 font-medium">Included in Free</p>
+                       </div>
+                       <div className="p-3 border border-slate-100 rounded-lg bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
+                          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Custom Branding</p>
+                          <p className="text-xl font-black text-slate-900 italic opacity-50">Locked</p>
+                          <p className="text-[9px] text-red-500 font-medium">Standard Plan only</p>
+                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-none border-indigo-100 bg-indigo-50/20">
+                  <CardHeader>
+                    <CardTitle className="text-indigo-900">Upgrade to Standard</CardTitle>
+                    <CardDescription className="text-indigo-700/70">Unlock professional features for your agency.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <ul className="space-y-2">
+                      {[
+                        "Remove InstaPact branding from contracts",
+                        "Upload custom agency logo",
+                        "Custom brand colors for signing pages",
+                        "Priority customer support"
+                      ].map((feature, i) => (
+                        <li key={i} className="flex items-center text-sm text-indigo-900/80">
+                          <span className="h-4 w-4 rounded-full bg-indigo-100 flex items-center justify-center mr-2 shrink-0">
+                            <span className="h-2 w-2 rounded-full bg-indigo-600" />
+                          </span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                  <CardFooter className="pt-2">
+                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100">
+                      Upgrade for $19/mo
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
             )}
 
             {/* Notifications */}

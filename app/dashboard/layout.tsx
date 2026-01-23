@@ -8,7 +8,15 @@ import { Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { 
+  DropdownMenu, 
+  DropdownMenuTrigger, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator,
+  DropdownMenuLabel 
+} from "@/components/ui/dropdown-menu";
+import { LogOut, Settings, User as UserIcon, ShieldCheck } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -120,47 +128,43 @@ export default function DashboardLayout({
             </Link>
           </div>
             <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm" className="hidden sm:flex text-slate-600 hover:text-indigo-600 hover:bg-indigo-50">
-                  Creator Dashboard
-                </Button>
-              </Link>
-              
-              <div className="text-sm text-right hidden sm:block">
-                <p className="font-medium text-slate-900">{user.displayName}</p>
-                <p className="text-slate-500 text-xs">{user.email}</p>
-              </div>
-
-              <DropdownMenu>
+               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-indigo-100 transition-all outline-none">
+                  <button className="flex items-center justify-center rounded-full transition-all duration-200 hover:scale-105 active:scale-95 outline-none ring-offset-2 hover:ring-2 hover:ring-indigo-100 shadow-sm hover:shadow-md group">
                     <img 
                       src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} 
                       alt="User profile" 
-                      className="w-8 h-8 rounded-full border border-slate-200"
+                      className="w-10 h-10 rounded-full border border-slate-200 group-hover:border-indigo-200 transition-colors"
                     />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 mt-2">
-                  <div className="px-2 py-1.5 sm:hidden">
-                    <p className="text-sm font-medium text-slate-900 truncate">{user.displayName}</p>
-                    <p className="text-xs text-slate-500 truncate">{user.email}</p>
-                  </div>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/profile" className="cursor-pointer">
-                      Profile Settings
+                <DropdownMenuContent align="end" className="w-64 p-2 mt-2">
+                  <DropdownMenuLabel className="font-normal px-2 py-3">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-bold text-slate-900 leading-none">{user.displayName}</p>
+                      <p className="text-xs text-slate-500 leading-none">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
+                    <Link href="/dashboard" className="flex items-center w-full font-medium">
+                      <ShieldCheck className="mr-3 h-4 w-4" />
+                      <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="sm:hidden">
-                    <Link href="/dashboard" className="cursor-pointer">
-                      Creator Dashboard
+                  <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
+                    <Link href="/dashboard/profile" className="flex items-center w-full">
+                      <Settings className="mr-3 h-4 w-4" />
+                      <span>Profile Settings</span>
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     onClick={() => logout()} 
-                    className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                    className="flex items-center text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer py-2.5 rounded-lg"
                   >
-                    Sign Out
+                    <LogOut className="mr-3 h-4 w-4" />
+                    <span>Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

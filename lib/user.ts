@@ -21,6 +21,8 @@ export interface UserProfile {
   // Notifications
   notifyOnView?: boolean;
   notifyOnSign?: boolean;
+  // Billing
+  plan?: 'free' | 'pro' | 'agency';
   updatedAt: Date;
 }
 
