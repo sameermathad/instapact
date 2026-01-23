@@ -88,8 +88,8 @@ export async function getContract(contractId: string): Promise<Contract | null> 
 
 // Note: In a production app, you'd add where('archived', '!=', true) and create an index.
 // For MVP simplicity and to avoid index errors, we'll filter in memory.
-export async function getCreatorContracts(creatorId: string): Promise<Contract[]> {
-  console.log(`[contracts.ts] Fetching contracts for ${creatorId}`)
+export async function getCreatorContracts(creatorId: string, status: 'active' | 'archived' = 'active'): Promise<Contract[]> {
+  console.log(`[contracts.ts] Fetching contracts for ${creatorId} (status: ${status})`)
   const q = query(
     collection(db, CONTRACTS_COLLECTION),
     where('creatorId', '==', creatorId),
@@ -98,14 +98,16 @@ export async function getCreatorContracts(creatorId: string): Promise<Contract[]
 
   try {
     const querySnapshot = await getDocs(q);
-    console.log(`[contracts.ts] Found ${querySnapshot.size} contracts`)
+    console.log(`[contracts.ts] Found ${querySnapshot.size} total contracts`)
     
     const contracts: Contract[] = [];
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      // Skip archived contracts
-      if (data.archived) return;
+      
+      // Filter in memory to avoid index requirement for != archived
+      if (status === 'active' && data.archived) return;
+      if (status === 'archived' && !data.archived) return;
 
       contracts.push({
         ...data,
