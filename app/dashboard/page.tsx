@@ -67,13 +67,13 @@ export default function DashboardPage() {
           <div className="mx-auto w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
             <FileText className="w-8 h-8 text-slate-400" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900">No contracts yet</h3>
+          <h3 className="text-lg font-semibold text-slate-900">No agreements yet</h3>
           <p className="text-slate-500 max-w-sm mx-auto">
-            Create your first contract to stop scope creep and get professional agreements signed instantly.
+            Create your first agreement to stop scope creep and get professional agreements signed instantly.
           </p>
           <Link href="/dashboard/new">
             <Button variant="outline" className="mt-4">
-              Create My First Contract
+              Create My First Agreement
             </Button>
           </Link>
         </div>

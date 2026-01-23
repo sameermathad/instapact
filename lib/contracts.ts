@@ -10,6 +10,7 @@ import {
   where,
   orderBy,
   Timestamp,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Contract, ContractMeta, TemplateType, AuditTrail } from '@/types';
@@ -85,7 +86,8 @@ export async function getContract(contractId: string): Promise<Contract | null> 
   } as Contract;
 }
 
-// Get all contracts for a creator
+// Note: In a production app, you'd add where('archived', '!=', true) and create an index.
+// For MVP simplicity and to avoid index errors, we'll filter in memory.
 export async function getCreatorContracts(creatorId: string): Promise<Contract[]> {
   console.log(`[contracts.ts] Fetching contracts for ${creatorId}`)
   const q = query(
@@ -102,6 +104,9 @@ export async function getCreatorContracts(creatorId: string): Promise<Contract[]
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
+      // Skip archived contracts
+      if (data.archived) return;
+
       contracts.push({
         ...data,
         id: doc.id,
@@ -162,4 +167,25 @@ export async function contractExists(contractId: string): Promise<boolean> {
   const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
   const docSnap = await getDoc(docRef);
   return docSnap.exists();
+}
+// Delete a contract
+export async function deleteContract(contractId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, CONTRACTS_COLLECTION, contractId));
+    console.log(`[contracts.ts] Contract ${contractId} deleted`);
+  } catch (e) {
+    console.error(`[contracts.ts] Failed to delete contract ${contractId}`, e);
+    throw e;
+  }
+}
+
+// Archive a contract (soft delete)
+export async function archiveContract(contractId: string): Promise<void> {
+  try {
+    await updateDoc(doc(db, CONTRACTS_COLLECTION, contractId), { archived: true });
+    console.log(`[contracts.ts] Contract ${contractId} archived`);
+  } catch (e) {
+    console.error(`[contracts.ts] Failed to archive contract ${contractId}`, e);
+    throw e;
+  }
 }

@@ -8,13 +8,14 @@ import { Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import Link from "next/link"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { user, loading, signInWithGoogle } = useAuth()
+  const { user, loading, signInWithGoogle, logout } = useAuth();
   const router = useRouter()
 
   useEffect(() => {
@@ -118,23 +119,52 @@ export default function DashboardLayout({
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs font-semibold bg-indigo-50 text-indigo-700 border-indigo-100 rounded-full px-2.5 py-0.5">Beta</Badge>
             </Link>
           </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="hidden sm:flex text-slate-600 hover:text-indigo-600 hover:bg-indigo-50">
-                Creator Dashboard
-              </Button>
-            </Link>
-            <div className="text-sm text-right hidden sm:block">
-              <p className="font-medium text-slate-900">{user.displayName}</p>
-              <p className="text-slate-500 text-xs">{user.email}</p>
+            <div className="flex items-center space-x-4">
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="hidden sm:flex text-slate-600 hover:text-indigo-600 hover:bg-indigo-50">
+                  Creator Dashboard
+                </Button>
+              </Link>
+              
+              <div className="text-sm text-right hidden sm:block">
+                <p className="font-medium text-slate-900">{user.displayName}</p>
+                <p className="text-slate-500 text-xs">{user.email}</p>
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-indigo-100 transition-all outline-none">
+                    <img 
+                      src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} 
+                      alt="User profile" 
+                      className="w-8 h-8 rounded-full border border-slate-200"
+                    />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 mt-2">
+                  <div className="px-2 py-1.5 sm:hidden">
+                    <p className="text-sm font-medium text-slate-900 truncate">{user.displayName}</p>
+                    <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/profile" className="cursor-pointer">
+                      Profile Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="sm:hidden">
+                    <Link href="/dashboard" className="cursor-pointer">
+                      Creator Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => logout()} 
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                  >
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            {/* Avatar or User Menu - Simplified for MVP */}
-            <img 
-              src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} 
-              alt="User" 
-              className="w-8 h-8 rounded-full border border-slate-200"
-            />
-          </div>
         </div>
       </header>
 

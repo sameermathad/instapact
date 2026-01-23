@@ -24,12 +24,27 @@ import {
 import { formatDate, getSigningUrl, copyToClipboard } from "@/lib/utils"
 import { toast } from "sonner"
 import { downloadContractPDF } from "@/lib/pdf"
+import { deleteContract, archiveContract } from "@/lib/contracts"
+import { Trash2, Archive } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface ContractCardProps {
   contract: Contract
 }
 
 export function ContractCard({ contract }: ContractCardProps) {
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
   const getIcon = () => {
     switch (contract.template) {
       case 'SCOPE': return <FileText className="h-5 w-5 text-indigo-600" />;
@@ -58,6 +73,30 @@ export function ContractCard({ contract }: ContractCardProps) {
   const handleDownload = () => {
     downloadContractPDF(contract);
     toast.success("Downloading PDF...");
+  };
+
+  const handleDelete = async () => {
+    setIsDeleting(true)
+    try {
+      await deleteContract(contract.id);
+      toast.success("Agreement deleted");
+      window.location.reload(); 
+    } catch (error) {
+      toast.error("Failed to delete agreement");
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteAlert(false)
+    }
+  };
+
+  const handleArchive = async () => {
+    try {
+      await archiveContract(contract.id);
+      toast.success("Agreement archived");
+      window.location.reload();
+    } catch (error) {
+      toast.error("Failed to archive agreement");
+    }
   };
 
   return (
@@ -139,8 +178,42 @@ export function ContractCard({ contract }: ContractCardProps) {
                   <CheckCircle2 className="h-4 w-4 mr-2" /> Download Proof
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem onClick={handleArchive}>
+                <Archive className="h-4 w-4 mr-2" /> Archive
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onSelect={(e) => {
+                  e.preventDefault()
+                  setShowDeleteAlert(true)
+                }} 
+                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4 mr-2" /> Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the agreement for <strong>{contract.meta.clientName}</strong>. 
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDelete}
+                  className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Delete Permanently"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardFooter>
     </Card>
