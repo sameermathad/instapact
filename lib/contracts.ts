@@ -191,3 +191,14 @@ export async function archiveContract(contractId: string): Promise<void> {
     throw e;
   }
 }
+
+// Unarchive a contract
+export async function unarchiveContract(contractId: string): Promise<void> {
+  try {
+    await updateDoc(doc(db, CONTRACTS_COLLECTION, contractId), { archived: false });
+    console.log(`[contracts.ts] Contract ${contractId} unarchived`);
+  } catch (e) {
+    console.error(`[contracts.ts] Failed to unarchive contract ${contractId}`, e);
+    throw e;
+  }
+}

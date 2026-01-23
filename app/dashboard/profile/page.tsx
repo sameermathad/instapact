@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from '@/lib/auth-context'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,7 +36,15 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Partial<UserProfile>>({})
   const [saving, setSaving] = useState(false)
   const [fetching, setFetching] = useState(true)
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get('tab') as SettingsTab
+  const [activeTab, setActiveTab] = useState<SettingsTab>(tabParam || 'general')
+  
+  useEffect(() => {
+    if (tabParam && tabParam !== activeTab) {
+      setActiveTab(tabParam)
+    }
+  }, [tabParam])
   
   // Canvas Ref for Signature
   const canvasRef = useRef<HTMLCanvasElement>(null)

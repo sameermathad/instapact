@@ -40,6 +40,7 @@ export interface Contract {
   auditTrail: AuditTrail | null;
   createdAt: Date;
   expiresAt: Date;
+  archived?: boolean;
 }
 
 export interface FieldDefinition {

@@ -24,8 +24,8 @@ import {
 import { formatDate, getSigningUrl, copyToClipboard } from "@/lib/utils"
 import { toast } from "sonner"
 import { downloadContractPDF } from "@/lib/pdf"
-import { deleteContract, archiveContract } from "@/lib/contracts"
-import { Trash2, Archive } from "lucide-react"
+import { deleteContract, archiveContract, unarchiveContract } from "@/lib/contracts"
+import { Trash2, Archive, RotateCcw } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -96,6 +96,16 @@ export function ContractCard({ contract }: ContractCardProps) {
       window.location.reload();
     } catch (error) {
       toast.error("Failed to archive agreement");
+    }
+  };
+
+  const handleUnarchive = async () => {
+    try {
+      await unarchiveContract(contract.id);
+      toast.success("Agreement restored");
+      window.location.reload();
+    } catch (error) {
+      toast.error("Failed to restore agreement");
     }
   };
 
@@ -178,9 +188,15 @@ export function ContractCard({ contract }: ContractCardProps) {
                   <CheckCircle2 className="h-4 w-4 mr-2" /> Download Proof
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={handleArchive}>
-                <Archive className="h-4 w-4 mr-2" /> Archive
-              </DropdownMenuItem>
+              {contract.archived ? (
+                <DropdownMenuItem onClick={handleUnarchive}>
+                  <RotateCcw className="h-4 w-4 mr-2" /> Restore
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={handleArchive}>
+                  <Archive className="h-4 w-4 mr-2" /> Archive
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem 
                 onSelect={(e) => {
                   e.preventDefault()

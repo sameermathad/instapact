@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel 
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User as UserIcon, ShieldCheck } from "lucide-react";
+import { LogOut, Settings, User as UserIcon, LayoutDashboard, CreditCard, HelpCircle, PlusCircle } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -35,20 +35,20 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen bg-slate-50">
         <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div className="flex items-center space-x-2">
                {/* Static Logo always visible */}
-              <span className="text-2xl font-black tracking-tighter text-slate-900">
+              <span className="text-3xl font-black tracking-tighter text-slate-900">
                 Insta<span className="text-indigo-600">Pact</span>
               </span>
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs font-semibold bg-indigo-50 text-indigo-700 border-indigo-100 rounded-full px-2.5 py-0.5">Beta</Badge>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 sm:space-x-6">
               <div className="text-sm text-right hidden sm:block space-y-1">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-3 w-32" />
               </div>
-              <Skeleton className="w-8 h-8 rounded-full" />
+              <Skeleton className="w-10 h-10 rounded-full" />
             </div>
           </div>
         </header>
@@ -118,16 +118,16 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-slate-50">
       {/* Dashboard Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Link href="/dashboard" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-              <span className="text-2xl font-black tracking-tighter text-slate-900">
-                Insta<span className="text-indigo-600">Pact</span>
+            <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity group">
+              <span className="text-3xl font-black tracking-tighter text-slate-900">
+                Insta<span className="text-indigo-600 group-hover:text-indigo-500 transition-colors">Pact</span>
               </span>
               <Badge variant="secondary" className="hidden sm:inline-flex text-xs font-semibold bg-indigo-50 text-indigo-700 border-indigo-100 rounded-full px-2.5 py-0.5">Beta</Badge>
             </Link>
           </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 sm:space-x-6">
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center justify-center rounded-full transition-all duration-200 hover:scale-105 active:scale-95 outline-none ring-offset-2 hover:ring-2 hover:ring-indigo-100 shadow-sm hover:shadow-md group">
@@ -147,8 +147,15 @@ export default function DashboardLayout({
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
-                    <Link href="/dashboard" className="flex items-center w-full font-medium">
-                      <ShieldCheck className="mr-3 h-4 w-4" />
+                    <Link href="/dashboard/new" className="flex items-center w-full font-medium">
+                      <PlusCircle className="mr-3 h-4 w-4" />
+                      <span>Create New</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
+                    <Link href="/dashboard" className="flex items-center w-full">
+                      <LayoutDashboard className="mr-3 h-4 w-4" />
                       <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
@@ -157,6 +164,19 @@ export default function DashboardLayout({
                       <Settings className="mr-3 h-4 w-4" />
                       <span>Profile Settings</span>
                     </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
+                    <Link href="/dashboard/profile?tab=billing" className="flex items-center w-full">
+                      <CreditCard className="mr-3 h-4 w-4" />
+                      <span>Plan & Billing</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700 group">
+                    <div className="flex items-center w-full">
+                      <HelpCircle className="mr-3 h-4 w-4 text-slate-400 group-focus:text-indigo-600" />
+                      <span>Help & Support</span>
+                    </div>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
