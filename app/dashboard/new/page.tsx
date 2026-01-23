@@ -13,9 +13,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, ArrowLeft, ArrowRight, Target, Shield, Briefcase, FileText, User } from "lucide-react"
+import { Loader2, ArrowLeft, ArrowRight, Target, Shield, Briefcase, FileText, User, Sparkles, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
+import { useUsageLimit } from "@/hooks/useUsageLimit"
 
 export default function NewContractPage() {
   return (
@@ -30,6 +31,7 @@ function NewContractContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
+  const { isAtLimit, loading: usageLoading } = useUsageLimit()
   
   // Use null as default to show selection screen
   const [activeTemplate, setActiveTemplate] = useState<TemplateType | null>(null)
@@ -88,6 +90,77 @@ function NewContractContent() {
     router.push('/dashboard/new') // Clean URL
   }
 
+  if (usageLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        <p className="text-slate-500 text-sm">Checking your usage limits...</p>
+      </div>
+    )
+  }
+
+  if (isAtLimit) {
+    return (
+      <div className="max-w-2xl mx-auto py-12 px-4 text-center">
+        <div className="mb-8 flex justify-center">
+          <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center">
+            <Sparkles className="w-10 h-10 text-indigo-600" />
+          </div>
+        </div>
+        <h1 className="text-3xl font-black text-slate-900 mb-4">Agreement Limit Reached</h1>
+        <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+          You've used your free agreement. To create more legally binding agreements and access premium features, please upgrade your plan.
+        </p>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+          <Card className="border-indigo-100 bg-indigo-50/30">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Standard</CardTitle>
+              <CardDescription>Perfect for regular use</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-slate-900">₹399<span className="text-sm font-normal text-slate-500">/mo</span></p>
+              <ul className="text-sm text-left mt-4 space-y-2 text-slate-600">
+                <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> 10 agreements / month</li>
+                <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> No watermarks</li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Link href="/dashboard/upgrade" className="w-full">
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Upgrade to Standard</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+          
+          <Card className="border-slate-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Agency</CardTitle>
+              <CardDescription>For power users</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold text-slate-900">₹999<span className="text-sm font-normal text-slate-500">/mo</span></p>
+              <ul className="text-sm text-left mt-4 space-y-2 text-slate-600">
+                <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> Unlimited agreements</li>
+                <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> Custom branding</li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Link href="/dashboard/upgrade" className="w-full">
+                <Button variant="outline" className="w-full">View Agency Plan</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+
+        <Link href="/dashboard" className="text-slate-500 hover:text-slate-900 font-medium transition-colors">
+          <div className="flex items-center justify-center">
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Dashboard
+          </div>
+        </Link>
+      </div>
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) {
@@ -95,6 +168,10 @@ function NewContractContent() {
       return
     }
     if (!activeTemplate) return
+    if (isAtLimit) {
+      toast.error("You have reached your agreement limit")
+      return
+    }
 
     setLoading(true)
     try {

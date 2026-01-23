@@ -18,6 +18,7 @@ import {
   DropdownMenuLabel 
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Settings, LayoutDashboard, User as UserIcon, PlusCircle } from "lucide-react";
+import { Logo } from "@/components/logo";
 
 export default function Home() {
   const { user, loading, logout } = useAuth();
@@ -45,11 +46,8 @@ export default function Home() {
         className="w-full bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-50"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity group">
-            <span className="text-3xl font-black tracking-tighter text-slate-900">
-              Insta<span className="text-indigo-600 group-hover:text-indigo-500 transition-colors">Pact</span>
-            </span>
-            <Badge variant="secondary" className="hidden sm:inline-flex text-xs font-semibold bg-indigo-50 text-indigo-700 border-indigo-100 rounded-full px-2.5 py-0.5">Beta</Badge>
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Logo />
           </Link>
           <div className="flex items-center space-x-4 sm:space-x-6">
             {!loading && (

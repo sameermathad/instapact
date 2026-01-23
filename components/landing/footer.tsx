@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 
 export function Footer() {
   return (
@@ -6,9 +7,9 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-1">
-            <span className="text-3xl font-black text-white tracking-tight">
-              Insta<span className="text-indigo-500">Pact</span>
-            </span>
+            <Link href="/" className="hover:opacity-80 transition-opacity inline-block mb-4">
+               <Logo showBeta={false} />
+            </Link>
             <p className="mt-4 text-sm leading-relaxed text-slate-500">
               Professional infrastructure for independent creators. Contracts, payments, and peace of mind.
             </p>

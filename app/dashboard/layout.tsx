@@ -16,7 +16,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel 
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User as UserIcon, LayoutDashboard, CreditCard, HelpCircle, PlusCircle } from "lucide-react";
+import { LogOut, Settings, User as UserIcon, LayoutDashboard, CreditCard, HelpCircle, PlusCircle, Sparkles } from "lucide-react";
+import { useUsageLimit } from "@/hooks/useUsageLimit";
+import { usePayment } from "@/hooks/usePayment";
+import { useState } from "react";
+import { PaymentModal } from "@/components/payment-modal";
+import { getUserProfile } from "@/lib/user";
+import { Logo } from "@/components/logo";
 
 export default function DashboardLayout({
   children,
@@ -27,7 +33,26 @@ export default function DashboardLayout({
   const router = useRouter()
 
   useEffect(() => {
-    // Optional: Redirect logic if needed
+    // Check if user has a profile/plan
+    async function checkProfile() {
+      if (user) {
+        // If we are already on the onboarding page, don't redirect (but this logic is in dashboard layout so it shouldn't trigger?)
+        // Wait, dashboard layout wraps /dashboard/*
+        
+        try {
+          const profile = await getUserProfile(user.uid)
+          if (!profile || !profile.plan) {
+             router.push('/onboarding')
+          }
+        } catch (e) {
+          console.error("Error checking profile", e)
+        }
+      }
+    }
+    
+    if (!loading && user) {
+      checkProfile()
+    }
   }, [user, loading, router])
 
   // Show Skeleton Loading state instead of full-screen spinner
@@ -120,21 +145,24 @@ export default function DashboardLayout({
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity group">
-              <span className="text-3xl font-black tracking-tighter text-slate-900">
-                Insta<span className="text-indigo-600 group-hover:text-indigo-500 transition-colors">Pact</span>
-              </span>
-              <Badge variant="secondary" className="hidden sm:inline-flex text-xs font-semibold bg-indigo-50 text-indigo-700 border-indigo-100 rounded-full px-2.5 py-0.5">Beta</Badge>
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <Logo />
             </Link>
           </div>
             <div className="flex items-center space-x-4 sm:space-x-6">
+               {/* Upgrade Button - Persistent "Shill" */}
+               {!loading && user && (
+                 <UpgradeButtonShim />
+               )}
+
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center justify-center rounded-full transition-all duration-200 hover:scale-105 active:scale-95 outline-none ring-offset-2 hover:ring-2 hover:ring-indigo-100 shadow-sm hover:shadow-md group">
                     <img 
-                      src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} 
+                      src={user.photoURL || user.providerData?.[0]?.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`} 
                       alt="User profile" 
                       className="w-10 h-10 rounded-full border border-slate-200 group-hover:border-indigo-200 transition-colors"
+                      referrerPolicy="no-referrer"
                     />
                   </button>
                 </DropdownMenuTrigger>
@@ -166,7 +194,7 @@ export default function DashboardLayout({
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
-                    <Link href="/dashboard/profile?tab=billing" className="flex items-center w-full">
+                    <Link href="/dashboard/upgrade" className="flex items-center w-full">
                       <CreditCard className="mr-3 h-4 w-4" />
                       <span>Plan & Billing</span>
                     </Link>
@@ -197,5 +225,24 @@ export default function DashboardLayout({
         {children}
       </main>
     </div>
+  )
+}
+
+function UpgradeButtonShim() {
+  const { plan, loading } = useUsageLimit()
+  const { user } = useAuth()
+  
+  if (loading || !plan || plan === 'agency') return null
+
+  return (
+    <Link href="/dashboard/upgrade">
+      <Button 
+        size="sm" 
+        className="hidden sm:inline-flex bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border-0 shadow-md"
+      >
+        <Sparkles className="w-4 h-4 mr-2" />
+        Upgrade Plan
+      </Button>
+    </Link>
   )
 }

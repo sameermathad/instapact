@@ -11,13 +11,18 @@ import Link from "next/link"
 
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Archive, LayoutDashboard } from "lucide-react"
+import { Archive, LayoutDashboard, AlertCircle, Sparkles } from "lucide-react"
+import { useUsageLimit } from "@/hooks/useUsageLimit"
+import { PLANS } from "@/lib/config"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 export default function DashboardPage() {
   const { user } = useAuth()
   const [contracts, setContracts] = useState<Contract[]>([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'active' | 'archived'>('active')
+  const { count, limit, isAtLimit, loading: usageLoading, plan } = useUsageLimit()
 
   useEffect(() => {
     async function fetchContracts() {
@@ -40,17 +45,96 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Upgrade Shill Banner */}
+      {!usageLoading && plan !== 'agency' && (
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Sparkles className="w-32 h-32 transform rotate-12" />
+          </div>
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="space-y-2">
+               <div className="flex items-center gap-2">
+                  <Badge className="bg-white/20 hover:bg-white/30 text-white border-0">Limited Offer</Badge>
+                  <span className="text-indigo-100 text-sm font-medium">Unlock full potential</span>
+               </div>
+               <h3 className="text-2xl font-bold">Upgrade to Agency Plan</h3>
+               <p className="text-indigo-100 max-w-xl">
+                 Get unlimited agreements, priority support, and advanced analytics. 
+                 Cancel anytime.
+               </p>
+            </div>
+            <Link href="/dashboard/upgrade">
+               <Button size="lg" className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold border-0 shadow-xl transition-transform hover:scale-105">
+                 Upgrade Now
+               </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
            <h1 className="text-3xl font-bold text-slate-900">Your Agreements</h1>
-           <p className="text-slate-500 mt-1">Manage and track your agreements.</p>
+           <div className="flex items-center space-x-2 mt-1">
+             <p className="text-slate-500">Manage and track your agreements.</p>
+             {!usageLoading && limit !== Infinity && (
+               <Badge variant="secondary" className={cn(
+                 "ml-2 font-medium px-2 py-0 border",
+                 isAtLimit ? "bg-red-50 text-red-700 border-red-100" : "bg-indigo-50 text-indigo-700 border-indigo-100"
+               )}>
+                 {count} / {limit} Used
+               </Badge>
+             )}
+           </div>
         </div>
-        <Link href="/dashboard/new">
-          <Button className="w-full sm:w-auto shadow-lg shadow-indigo-100">
-            <Plus className="w-5 h-5 mr-2" /> Create New
-          </Button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-2">
+          {user && (
+            <Link href={isAtLimit ? "/dashboard/upgrade" : "/dashboard/new"}>
+              <Button 
+                disabled={isAtLimit}
+                className={cn(
+                  "w-full sm:w-auto shadow-lg transition-all",
+                  isAtLimit 
+                    ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none" 
+                    : "shadow-indigo-100 bg-indigo-600 hover:bg-indigo-700"
+                )}
+              >
+                {isAtLimit ? (
+                  <>Limit Reached</>
+                ) : (
+                  <><Plus className="w-5 h-5 mr-2" /> Create New</>
+                )}
+              </Button>
+            </Link>
+          )}
+          {isAtLimit && (
+            <Link href="/dashboard/upgrade">
+              <Button variant="outline" className="w-full sm:w-auto border-indigo-200 text-indigo-600 hover:bg-indigo-50">
+                <Sparkles className="w-4 h-4 mr-2" /> Upgrade
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
+
+      {isAtLimit && (
+        <div className="bg-indigo-600 rounded-xl p-4 text-white flex items-center justify-between shadow-md">
+          <div className="flex items-center space-x-3">
+            <div className="bg-white/20 p-2 rounded-lg">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm sm:text-base">You've reached your agreement limit</p>
+              <p className="text-indigo-100 text-xs sm:text-sm">Upgrade to Standard to create up to 10 agreements per month.</p>
+            </div>
+          </div>
+          <Link href="/dashboard/upgrade">
+            <Button size="sm" className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold whitespace-nowrap">
+              Upgrade Now
+            </Button>
+          </Link>
+        </div>
+      )}
 
       <Tabs defaultValue="active" onValueChange={(val) => setView(val as 'active' | 'archived')} className="w-full">
         <TabsList className="bg-slate-100 p-1 mb-8">
@@ -85,9 +169,9 @@ export default function DashboardPage() {
                   : "Archived agreements will appear here. You can archive agreements from the menu on each card."}
               </p>
               {view === 'active' && (
-                <Link href="/dashboard/new">
-                  <Button variant="outline" className="mt-4">
-                    Create My First Agreement
+                <Link href={isAtLimit ? "/dashboard/profile?tab=billing" : "/dashboard/new"}>
+                  <Button variant="outline" className="mt-4" disabled={isAtLimit}>
+                    {isAtLimit ? "Upgrade to Create" : "Create My First Agreement"}
                   </Button>
                 </Link>
               )}

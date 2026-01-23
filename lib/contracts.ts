@@ -164,12 +164,43 @@ export async function signContract(
   }
 }
 
+// Get agreement count for a user, optionally filtered by date range
+export async function getAgreementCount(creatorId: string, period?: { start: Date; end: Date }): Promise<number> {
+  let q = query(
+    collection(db, CONTRACTS_COLLECTION),
+    where('creatorId', '==', creatorId)
+  );
+
+  if (period) {
+    q = query(q, 
+      where('createdAt', '>=', Timestamp.fromDate(period.start)),
+      where('createdAt', '<=', Timestamp.fromDate(period.end))
+    );
+  }
+
+  try {
+    const querySnapshot = await getDocs(q);
+    let count = 0;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      // For usage tracking, we only count non-archived agreements
+      if (!data.archived) {
+        count++;
+      }
+    });
+    return count;
+  } catch (e) {
+    console.error(`[contracts.ts] Failed to get agreement count for ${creatorId}`, e);
+    return 0;
+  }
+}
 // Check if a contract exists
 export async function contractExists(contractId: string): Promise<boolean> {
   const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
   const docSnap = await getDoc(docRef);
   return docSnap.exists();
 }
+
 // Delete a contract
 export async function deleteContract(contractId: string): Promise<void> {
   try {

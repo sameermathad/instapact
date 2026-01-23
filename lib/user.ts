@@ -22,7 +22,15 @@ export interface UserProfile {
   notifyOnView?: boolean;
   notifyOnSign?: boolean;
   // Billing
-  plan?: 'free' | 'pro' | 'agency';
+  plan?: 'free' | 'single' | 'standard' | 'agency';
+  credits?: number;
+  
+  // Subscription Details
+  subscriptionStatus?: 'active' | 'past_due' | 'canceled' | 'incomplete';
+  subscriptionId?: string;
+  currentPeriodStart?: any; // Firestore Timestamp
+  currentPeriodEnd?: any;   // Firestore Timestamp
+  
   updatedAt: Date;
 }
 

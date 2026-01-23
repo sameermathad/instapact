@@ -1,10 +1,12 @@
 "use client"
 
 import { useAuth } from '@/lib/auth-context'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -12,21 +14,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
-import { 
-  Building2, 
-  User, 
-  Shield, 
-  Info, 
-  Settings, 
-  Bell, 
-  CreditCard,
-  Palette,
-  Signature as SignatureIcon,
-  Lock,
-  Stamp
-} from 'lucide-react'
+import { Building2, User, Shield, Info, Settings, Bell, CreditCard, Palette, Signature as SignatureIcon, Lock, Stamp, CheckCircle2, Sparkles, AlertCircle, Calendar, Download, ArrowLeft } from 'lucide-react'
 import { getUserProfile, updateUserProfile, UserProfile } from '@/lib/user'
 import { cn } from '@/lib/utils'
+import { useUsageLimit } from '@/hooks/useUsageLimit'
+import { PLANS, PlanType } from '@/lib/config'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { usePayment, PaymentType } from '@/hooks/usePayment'
+import { PaymentModal } from '@/components/payment-modal'
 
 type SettingsTab = 'general' | 'legal' | 'branding' | 'payments' | 'billing' | 'notifications' | 'security'
 
@@ -39,12 +41,34 @@ export default function ProfilePage() {
   const searchParams = useSearchParams()
   const tabParam = searchParams.get('tab') as SettingsTab
   const [activeTab, setActiveTab] = useState<SettingsTab>(tabParam || 'general')
+  const { count, limit, plan, isAtLimit, credits, loading: usageLoading } = useUsageLimit()
+  const { processPayment, processing: paymentProcessing } = usePayment()
+  const [paymentModal, setPaymentModal] = useState<{ open: boolean, type: PaymentType, itemId: string, amount: number, desc: string } | null>(null)
   
   useEffect(() => {
     if (tabParam && tabParam !== activeTab) {
       setActiveTab(tabParam)
     }
   }, [tabParam])
+  
+  // Helper functions for upgrades
+  const getNextPlanName = (currentPlan: PlanType) => {
+    switch (currentPlan) {
+      case 'free': return 'Standard'
+      case 'single': return 'Standard'
+      case 'standard': return 'Agency'
+      default: return 'Agency'
+    }
+  }
+
+  const getNextPlanPrice = (currentPlan: PlanType) => {
+    switch (currentPlan) {
+      case 'free': return PLANS.standard.price
+      case 'single': return PLANS.standard.price
+      case 'standard': return PLANS.agency.price
+      default: return PLANS.agency.price
+    }
+  }
   
   // Canvas Ref for Signature
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -155,14 +179,24 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 font-heading">Settings</h1>
-          <p className="text-slate-500">Global preferences for your contracts.</p>
-        </div>
-        <Button onClick={() => handleSave()} disabled={saving} className="w-full md:w-auto">
-          {saving ? "Saving..." : "Save Changes"}
+      <div>
+        <Button 
+          variant="ghost" 
+          className="group pl-0 hover:bg-transparent hover:text-indigo-600 -ml-2 mb-2" 
+          onClick={() => router.push('/dashboard')}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+          Back to Dashboard
         </Button>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 font-heading">Settings</h1>
+            <p className="text-slate-500">Global preferences for your contracts.</p>
+          </div>
+          <Button onClick={() => handleSave()} disabled={saving} className="w-full md:w-auto">
+            {saving ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -394,63 +428,153 @@ export default function ProfilePage() {
 
             {/* Billing Settings */}
             {activeTab === 'billing' && (
-              <div className="space-y-6">
-                <Card className="shadow-none border-slate-200">
-                  <CardHeader>
-                    <CardTitle>Active Subscription</CardTitle>
-                    <CardDescription>You are currently on the free tier.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-100">
+              <div className="space-y-8">
+                {/* Current Plan Details */}
+                <Card className="shadow-none border-slate-200 overflow-hidden">
+                  <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-bold text-slate-900 capitalize">{profile.plan || 'Free'} Plan</p>
-                        <p className="text-xs text-slate-500">Perfect for getting started with professional agreements.</p>
+                        <CardTitle className="text-lg flex items-center">
+                          Current Plan: <span className="text-indigo-600 capitalize ml-2">{plan}</span>
+                        </CardTitle>
+                        <CardDescription className="mt-1">
+                          You are currently paying <span className="font-semibold text-slate-900">{PLANS[plan].price === 0 ? '₹0' : `₹${PLANS[plan].price}/mo`}</span>
+                        </CardDescription>
                       </div>
-                      <div className="px-2 py-1 text-[10px] font-bold bg-white border border-slate-200 text-slate-700 rounded-full uppercase tracking-wider">Active</div>
+                      <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-100 uppercase text-[10px]">
+                        Active
+                      </Badge>
                     </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="space-y-6">
+                      {/* Usage Bar */}
+                      {/* Usage Section */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         {/* Monthly/Plan Usage */}
+                         <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-3">
+                            <div className="flex items-center gap-2">
+                               <Calendar className="w-4 h-4 text-slate-400" />
+                               <span className="text-sm font-medium text-slate-700">
+                                 {PLANS[plan].isMonthly ? 'Monthly Cycle' : 'Plan Usage'}
+                               </span>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-2xl font-bold text-slate-900">
+                                <span>{Math.min(count, limit)} <span className="text-sm font-normal text-slate-400">/ {limit === Infinity ? '∞' : limit}</span></span>
+                              </div>
+                              {limit !== Infinity && (
+                                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                  <div 
+                                    className={cn("h-full transition-all duration-500", count >= limit ? "bg-orange-500" : "bg-indigo-600")}
+                                    style={{ width: `${Math.min((count / limit) * 100, 100)}%` }}
+                                  />
+                                </div>
+                              )}
+                              <p className="text-[10px] text-slate-400">
+                                {PLANS[plan].isMonthly 
+                                  ? "Resets on the 1st of next month." 
+                                  : "Standard plan document limit."}
+                              </p>
+                            </div>
+                         </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                       <div className="p-3 border border-slate-100 rounded-lg bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-                          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Agreements Signatures</p>
-                          <p className="text-xl font-black text-slate-900">Unlimited</p>
-                          <p className="text-[9px] text-emerald-600 font-medium">Included in Free</p>
-                       </div>
-                       <div className="p-3 border border-slate-100 rounded-lg bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-                          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Custom Branding</p>
-                          <p className="text-xl font-black text-slate-900 italic opacity-50">Locked</p>
-                          <p className="text-[9px] text-red-500 font-medium">Standard Plan only</p>
-                       </div>
+                         {/* Extra Documents */}
+                         <div className="bg-emerald-50/50 border border-emerald-100 rounded-lg p-4 space-y-3 relative overflow-hidden">
+                            <div className="flex items-center gap-2">
+                               <CreditCard className="w-4 h-4 text-emerald-600" />
+                               <span className="text-sm font-medium text-emerald-900">Extra Documents</span>
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <div className="text-2xl font-bold text-emerald-700">
+                                {credits} <span className="text-sm font-normal text-emerald-600/80">available</span>
+                              </div>
+                              <p className="text-[10px] text-emerald-600">
+                                Lifetime validity. Used when plan quota is exhausted.
+                              </p>
+                            </div>
+
+                            <Button 
+                              size="sm"
+                              variant="outline"
+                              className="w-full mt-2 bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                              onClick={() => setPaymentModal({ 
+                                open: true, 
+                                type: 'credit_purchase', 
+                                itemId: '1', 
+                                amount: 99, 
+                                desc: '1 Extra Document' 
+                              })}
+                            >
+                              Add 1 Document (₹99)
+                            </Button>
+                         </div>
+                      </div>
+
+
+
+                      {/* Upgrade Options logic */}
+                      {plan !== 'agency' && (
+                        <div className="bg-indigo-50/50 border border-indigo-100 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-indigo-100 p-2 rounded-lg">
+                              <Sparkles className="w-5 h-5 text-indigo-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-indigo-900 text-sm">Upgrade to {getNextPlanName(plan)}</h4>
+                              <p className="text-xs text-indigo-700/80">Unlock more agreements and features.</p>
+                            </div>
+                          </div>
+                          <Link href="/dashboard/upgrade">
+                            <Button 
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm w-full sm:w-auto"
+                            >
+                              Upgrade for ₹{getNextPlanPrice(plan)}/mo
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
+                      
+                      {plan === 'agency' && (
+                         <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4 flex items-center gap-3">
+                            <div className="bg-emerald-100 p-2 rounded-full">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <p className="text-sm text-emerald-800 font-medium">You are on the highest tier. Enjoy unlimited access!</p>
+                         </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-none border-indigo-100 bg-indigo-50/20">
+                {/* Billing History */}
+                <Card className="shadow-none border-slate-200">
                   <CardHeader>
-                    <CardTitle className="text-indigo-900">Upgrade to Standard</CardTitle>
-                    <CardDescription className="text-indigo-700/70">Unlock professional features for your agency.</CardDescription>
+                    <CardTitle className="text-lg">Billing History</CardTitle>
+                    <CardDescription>View your past invoices and payment status.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <ul className="space-y-2">
-                      {[
-                        "Remove InstaPact branding from contracts",
-                        "Upload custom agency logo",
-                        "Custom brand colors for signing pages",
-                        "Priority customer support"
-                      ].map((feature, i) => (
-                        <li key={i} className="flex items-center text-sm text-indigo-900/80">
-                          <span className="h-4 w-4 rounded-full bg-indigo-100 flex items-center justify-center mr-2 shrink-0">
-                            <span className="h-2 w-2 rounded-full bg-indigo-600" />
-                          </span>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Invoice ID</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Download</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium text-slate-500 italic" colSpan={5}>
+                             No invoices found.
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
                   </CardContent>
-                  <CardFooter className="pt-2">
-                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100">
-                      Upgrade for $19/mo
-                    </Button>
-                  </CardFooter>
                 </Card>
               </div>
             )}
@@ -513,6 +637,20 @@ export default function ProfilePage() {
           </form>
         </div>
       </div>
+
+      {paymentModal && (
+        <PaymentModal 
+          isOpen={paymentModal.open}
+          onClose={() => setPaymentModal(null)}
+          onConfirm={async () => {
+             await processPayment(paymentModal.type, paymentModal.itemId, paymentModal.amount)
+          }}
+          amount={paymentModal.amount}
+          currency={profile.defaultCurrency || 'INR'}
+          provider={profile.defaultCurrency === 'USD' ? 'lemonsqueezy' : 'razorpay'}
+          itemDescription={paymentModal.desc}
+        />
+      )}
     </div>
   )
 }
@@ -520,3 +658,4 @@ export default function ProfilePage() {
 function Separator({ className }: { className?: string }) {
   return <div className={cn("h-px w-full", className)} />
 }
+

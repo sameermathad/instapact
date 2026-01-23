@@ -122,7 +122,7 @@ export function HeroWidget() {
               <Loader2 className="w-6 h-6 animate-spin" />
             ) : (
               <span className="flex items-center">
-                Generate Link <ArrowRight className="ml-2 w-5 h-5" />
+                Generate Agreement <ArrowRight className="ml-2 w-5 h-5" />
               </span>
             )}
           </Button>
