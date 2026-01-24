@@ -463,9 +463,9 @@ export default function ProfilePage() {
                         </CardTitle>
                         <CardDescription className="mt-1">
                           You are currently paying <span className="font-semibold text-slate-900">
-                            {PLANS[plan].price === 0 
-                              ? '₹0' 
-                              : `₹${PLANS[plan].price}${PLANS[plan].isMonthly ? '/mo' : ''}`}
+                              {PLANS[plan].price === 0 
+                                ? '₹0' 
+                                : `₹${PLANS[plan].price}${PLANS[plan].isMonthly ? '/mo' : PLANS[plan].isAnnual ? '/yr' : ''}`}
                           </span>
                         </CardDescription>
                       </div>

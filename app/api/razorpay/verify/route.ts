@@ -3,14 +3,21 @@ import crypto from 'crypto';
 
 export async function POST(req: Request) {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json();
+    const { razorpay_order_id, razorpay_subscription_id, razorpay_payment_id, razorpay_signature } = await req.json();
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
     if (!secret) return NextResponse.json({ error: 'Razorpay secret not configured' }, { status: 500 });
 
+    // For subscriptions, use subscription_id, otherwise use order_id
+    const idToVerify = razorpay_subscription_id || razorpay_order_id;
+    
+    if (!idToVerify) {
+        return NextResponse.json({ error: 'Order ID or Subscription ID is required' }, { status: 400 });
+    }
+
     const generated_signature = crypto
       .createHmac('sha256', secret)
-      .update(razorpay_order_id + '|' + razorpay_payment_id)
+      .update(idToVerify + '|' + razorpay_payment_id)
       .digest('hex');
 
     if (generated_signature === razorpay_signature) {

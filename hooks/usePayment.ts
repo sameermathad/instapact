@@ -33,15 +33,20 @@ export function usePayment(): UsePaymentReturn {
         if (type === 'plan_upgrade') {
             updates.plan = itemId as PlanType
             
-            // Simulate subscription start
+            // Calculate subscription end date
             const now = new Date()
-            const oneMonthLater = new Date(now)
-            oneMonthLater.setMonth(now.getMonth() + 1)
+            const endDate = new Date(now)
+            
+            if (PLANS[itemId as PlanType]?.isAnnual) {
+                endDate.setFullYear(now.getFullYear() + 1)
+            } else {
+                endDate.setMonth(now.getMonth() + 1)
+            }
             
             updates.subscriptionStatus = 'active'
             updates.subscriptionId = 'sub_rzp_' + Math.random().toString(36).substring(7)
             updates.currentPeriodStart = now
-            updates.currentPeriodEnd = oneMonthLater
+            updates.currentPeriodEnd = endDate
             
             toast.success(`Successfully upgraded to ${PLANS[itemId as PlanType].name} plan!`, { id: 'payment-process' })
         } else if (type === 'credit_purchase') {
@@ -75,24 +80,32 @@ export function usePayment(): UsePaymentReturn {
 
     return new Promise(async (resolve) => {
         try {
-            const res = await fetch('/api/razorpay/order', {
-                method: 'POST',
-                body: JSON.stringify({ amount, currency: 'INR' }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-            
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.error || 'Failed to create order');
+            const planConfig = PLANS[itemId as PlanType];
+            const useSubscription = type === 'plan_upgrade' && planConfig?.razorpayPlanId;
+
+            let paymentData;
+            if (useSubscription) {
+                const res = await fetch('/api/razorpay/subscription', {
+                    method: 'POST',
+                    body: JSON.stringify({ planId: planConfig.razorpayPlanId }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                paymentData = await res.json();
+                if (!res.ok) throw new Error(paymentData.error || 'Failed to create subscription');
+            } else {
+                const res = await fetch('/api/razorpay/order', {
+                    method: 'POST',
+                    body: JSON.stringify({ amount, currency: 'INR' }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                paymentData = await res.json();
+                if (!res.ok) throw new Error(paymentData.error || 'Failed to create order');
             }
 
-            const options = {
+            const options: any = {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: data.amount,
-                currency: data.currency,
                 name: "InstaPact",
-                description: type === 'plan_upgrade' ? `Upgrade to ${itemId}` : 'Credit Purchase',
-                order_id: data.id,
+                description: type === 'plan_upgrade' ? `Upgrade to ${planConfig?.name || itemId}` : 'Credit Purchase',
                 handler: async function (response: any) {
                     toast.loading("Verifying payment...", { id: 'payment-process' });
                     try {
@@ -100,6 +113,7 @@ export function usePayment(): UsePaymentReturn {
                            method: 'POST',
                            body: JSON.stringify({
                                razorpay_order_id: response.razorpay_order_id,
+                               razorpay_subscription_id: response.razorpay_subscription_id,
                                razorpay_payment_id: response.razorpay_payment_id,
                                razorpay_signature: response.razorpay_signature
                            }),
@@ -137,6 +151,14 @@ export function usePayment(): UsePaymentReturn {
                     }
                 }
             };
+
+            if (useSubscription) {
+                options.subscription_id = paymentData.id;
+            } else {
+                options.amount = paymentData.amount;
+                options.currency = paymentData.currency;
+                options.order_id = paymentData.id;
+            }
 
             const rzp1 = new window.Razorpay(options);
             rzp1.open();
