@@ -46,31 +46,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Upgrade Shill Banner */}
-      {!usageLoading && plan !== 'agency' && (
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Sparkles className="w-32 h-32 transform rotate-12" />
-          </div>
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="space-y-2">
-               <div className="flex items-center gap-2">
-                  <Badge className="bg-white/20 hover:bg-white/30 text-white border-0">Limited Offer</Badge>
-                  <span className="text-indigo-100 text-sm font-medium">Unlock full potential</span>
-               </div>
-               <h3 className="text-2xl font-bold">Upgrade to Agency Plan</h3>
-               <p className="text-indigo-100 max-w-xl">
-                 Get unlimited agreements, priority support, and advanced analytics. 
-                 Cancel anytime.
-               </p>
-            </div>
-            <Link href="/dashboard/upgrade">
-               <Button size="lg" className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold border-0 shadow-xl transition-transform hover:scale-105">
-                 Upgrade Now
-               </Button>
-            </Link>
-          </div>
-        </div>
-      )}
+
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

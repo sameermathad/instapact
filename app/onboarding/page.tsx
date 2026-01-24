@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { updateUserProfile } from "@/lib/user"
 import { toast } from "sonner"
 import { PlanSelection } from "@/components/pricing/plan-selection"
+import { Logo } from "@/components/logo"
 
 export default function OnboardingPage() {
   const { user } = useAuth()
@@ -26,6 +27,9 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-5xl w-full space-y-8">
         <div className="text-center space-y-4">
+          <div className="flex justify-center mb-6">
+            <Logo showBeta={false} />
+          </div>
           <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
             Choose your plan
           </h1>

@@ -153,67 +153,96 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
     );
   }
 
+  // Professional "Document Viewer" Layout
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 md:pb-12">
-      {/* Navbar / Brand */}
-      {/* Navbar / Brand */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-slate-100 font-sans selection:bg-indigo-100 text-slate-900 pb-24 md:pb-12">
+      {/* Texture Overlay (Optional, for realism) */}
+      <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] mix-blend-multiply"></div>
+
+      {/* Glass Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-200/60 shadow-sm transition-all duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity">
-             <Logo />
+             <Logo showBeta={false} />
           </Link>
           
-          <div className="flex items-center gap-4">
-             {signed && (
-                <Button size="sm" variant="outline" onClick={() => downloadContractPDF(contract)}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
+          <div className="flex items-center gap-3">
+             {!signed && (
+                <div className="hidden sm:flex items-center text-sm font-medium text-slate-500">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse"></span>
+                  Pending Signature
+                </div>
              )}
-             
-             {/* Simple Auth Check - if we have a user, show avatar (simplified for public page) */}
-             {/* Removed to keep public view clean as per user feedback */}
           </div>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-        {signed && <SuccessAnimation />}
-        
-        {signed && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+      {/* Main Content Area */}
+      <main className="pt-24 px-4 sm:px-6 relative z-10">
+        <div className="max-w-[850px] mx-auto space-y-8">
+          
+          {/* Success Banner */}
+          {signed && (
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left animate-in slide-in-from-top-4 fade-in duration-500 shadow-sm">
+              <div className="flex-shrink-0 w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-emerald-600" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-emerald-900">Contract E-Signed & Validated</h2>
+                <p className="text-emerald-700 text-sm">
+                  This document was e-signed on {formatDate(contract.auditTrail?.signedAt || new Date())}.
+                  A secure copy has been generated for your downloads.
+                </p>
+              </div>
+              <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800" onClick={() => downloadContractPDF(contract)}>
+                Download Copy
+              </Button>
             </div>
-            <h2 className="text-2xl font-bold text-green-800">Successfully Signed!</h2>
-            <p className="text-green-700 max-w-sm mx-auto">
-              This contract is now legally binding. A PDF copy has been generated for your records.
-            </p>
-            <div className="text-sm text-green-600 pt-2">
-              Signed on {formatDate(contract.auditTrail?.signedAt || new Date())}
+          )}
+
+          {/* Electronic Paper Container */}
+          <div className="bg-white rounded-md shadow-2xl overflow-hidden border border-slate-200/60 min-h-[1000px] relative">
+            {/* Top Brand Bar */}
+            <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+
+            {/* Document Content */}
+            <div className="p-8 sm:p-12 md:p-16 space-y-10">
+              <ContractDisplay contract={contract} />
+            </div>
+
+            {/* Bottom Brand Bar */}
+            <div className="bg-slate-50 border-t border-slate-100 p-8 text-center">
+              <p className="text-xs text-slate-400 font-medium uppercase tracking-widest">
+                Secured by InstaPact
+              </p>
             </div>
           </div>
-        )}
 
-        {/* Contract Visual */}
-        <ContractDisplay contract={contract} />
+          {/* Sticky Signature Action (Mobile friendly) */}
+          {!signed && (
+            <div className="sticky bottom-6 z-30 mx-auto max-w-md">
+               <div className="bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-1.5 ring-1 ring-black/5">
+                 <SignatureForm 
+                   onSubmit={handleSign} 
+                   isSubmitting={signing} 
+                   defaultEmail={contract.meta.clientEmail}
+                   defaultName={contract.meta.clientName}
+                 />
+               </div>
+            </div>
+          )}
 
-        {/* Action Area */}
-        {!signed && (
-          <div className="sticky bottom-4 md:static z-20">
-             <SignatureForm 
-               onSubmit={handleSign} 
-               isSubmitting={signing} 
-               defaultEmail={contract.meta.clientEmail}
-               defaultName={contract.meta.clientName}
-             />
-          </div>
-        )}
+        </div>
       </main>
-      
-      {/* Powered by Footer */}
-      <footer className="text-center py-8 text-slate-400 text-sm">
-        <p>Powered by InstaPact &bull; Secure Digital Contracts</p>
+
+      {/* Footer */}
+      <footer className="py-12 text-center space-y-2">
+        <p className="text-sm text-slate-500">
+          Powered by <span className="font-bold text-slate-700">InstaPact</span>
+        </p>
+        <p className="text-xs text-slate-400 max-w-md mx-auto px-4">
+          This is a legally binding electronic contract. Ip addresses and device signatures are recorded for security and audit purposes.
+        </p>
       </footer>
     </div>
   );

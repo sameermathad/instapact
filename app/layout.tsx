@@ -60,6 +60,7 @@ export default function RootLayout({
             gtag('config', 'G-Z51NZKJ974');
           `}
         </Script>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       </body>
     </html>
   );

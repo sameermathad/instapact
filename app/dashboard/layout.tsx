@@ -63,10 +63,7 @@ export default function DashboardLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div className="flex items-center space-x-2">
                {/* Static Logo always visible */}
-              <span className="text-3xl font-black tracking-tighter text-slate-900">
-                Insta<span className="text-indigo-600">Pact</span>
-              </span>
-              <Badge variant="secondary" className="hidden sm:inline-flex text-xs font-semibold bg-indigo-50 text-indigo-700 border-indigo-100 rounded-full px-2.5 py-0.5">Beta</Badge>
+               <Logo />
             </div>
             <div className="flex items-center space-x-4 sm:space-x-6">
               <div className="text-sm text-right hidden sm:block space-y-1">
@@ -100,11 +97,14 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-slate-900">Sign in to InstaPact</h1>
-            <p className="text-slate-500">
-              Access your contracts, create new agreements, and track approvals.
-            </p>
+          <div className="space-y-4 flex flex-col items-center">
+            <Logo showBeta={false} />
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-slate-900">Sign in to InstaPact</h1>
+              <p className="text-slate-500">
+                Access your contracts, create new agreements, and track approvals.
+              </p>
+            </div>
           </div>
           <Button 
             onClick={() => signInWithGoogle()} 

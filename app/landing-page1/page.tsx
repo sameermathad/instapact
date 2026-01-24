@@ -6,6 +6,8 @@ import { Shield, Lock, FileText, CheckCircle2, ArrowRight, Zap, Scale, FileCheck
 import Link from "next/link";
 import Image from "next/image";
 
+import { Logo } from "@/components/logo";
+
 export default function LandingPageVariant1() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
@@ -13,9 +15,7 @@ export default function LandingPageVariant1() {
       <nav className="w-full bg-white border-b border-slate-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold tracking-tight text-slate-900">
-              Insta<span className="text-indigo-600">Pact</span>
-            </span>
+            <Logo showBeta={false} />
           </div>
           <div className="flex items-center space-x-4">
             <Link href="/dashboard" className="text-sm font-medium text-slate-600 hover:text-slate-900">
