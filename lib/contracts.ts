@@ -15,6 +15,7 @@ import {
 import { db } from './firebase';
 import { Contract, ContractMeta, TemplateType, AuditTrail } from '@/types';
 import { generateShortId, getExpirationDate } from './utils';
+import { incrementUserContractCount } from './user';
 
 const CONTRACTS_COLLECTION = 'contracts';
 
@@ -54,6 +55,10 @@ export async function createContract(
   try {
     await setDoc(doc(db, CONTRACTS_COLLECTION, contractId), firestoreData);
     console.log(`[contracts.ts] Contract ${contractId} created successfully`)
+    
+    // Increment User Usage Count (Fire & Forget)
+    incrementUserContractCount(creatorId).catch(err => console.error("Failed to increment usage", err));
+
   } catch (e) {
     console.error(`[contracts.ts] Failed to create contract ${contractId}`, e)
     throw e

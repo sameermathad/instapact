@@ -40,18 +40,19 @@ export function useUsageLimit() {
              const start = profile.currentPeriodStart.toDate ? profile.currentPeriodStart.toDate() : new Date(profile.currentPeriodStart);
              const end = profile.currentPeriodEnd.toDate ? profile.currentPeriodEnd.toDate() : new Date(profile.currentPeriodEnd);
              
-             // Safety check: if end date is in the past, maybe fallback to current month or show expired?
-             // For now, let's assume we count usage in the declared period.
              currentCount = await getAgreementCount(user.uid, { start, end });
           } else {
-            // Fallback to Calendar Month
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
             currentCount = await getAgreementCount(user.uid, { start: startOfMonth, end: endOfMonth });
           }
         } else {
-          currentCount = await getAgreementCount(user.uid);
+          // For One-Time / Free plans, usage is lifetime based on creation history
+          // Fallback to active count if lifetime is not tracked yet (migration)
+          currentCount = (profile?.lifetimeCount !== undefined)
+             ? profile.lifetimeCount 
+             : await getAgreementCount(user.uid);
         }
 
         setCount(currentCount);

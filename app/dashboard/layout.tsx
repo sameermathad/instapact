@@ -194,7 +194,7 @@ export default function DashboardLayout({
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
-                    <Link href="/dashboard/upgrade" className="flex items-center w-full">
+                    <Link href="/dashboard/profile?tab=billing" className="flex items-center w-full">
                       <CreditCard className="mr-3 h-4 w-4" />
                       <span>Plan & Billing</span>
                     </Link>
@@ -235,7 +235,7 @@ function UpgradeButtonShim() {
   if (loading || !plan || plan === 'agency') return null
 
   return (
-    <Link href="/dashboard/upgrade">
+    <Link href="/dashboard/profile?tab=plans">
       <Button 
         size="sm" 
         className="hidden sm:inline-flex bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border-0 shadow-md"

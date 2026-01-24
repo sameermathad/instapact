@@ -1,31 +1,35 @@
-import { FileText } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
 
 export function Logo({ 
   showBeta = true, 
-  variant = 'default' 
+  variant = 'default',
+  className = ""
 }: { 
   showBeta?: boolean; 
   variant?: 'default' | 'inverted';
+  className?: string;
 }) {
   const textColor = variant === 'inverted' ? 'text-white' : 'text-slate-900';
   
   return (
-    <div className="flex items-center space-x-2.5 group select-none">
-      <svg 
-        width="32" 
-        height="32" 
-        viewBox="0 0 32 32" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg" 
-        className="group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 ease-out shadow-sm shadow-indigo-200 rounded-lg"
-      >
-        <rect width="32" height="32" rx="8" fill="#4F46E5" />
-        <path d="M10 10H22" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M10 16H22" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M10 22H16" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-      </svg>
-      <span className={`text-2xl font-black tracking-tight ${textColor}`}>
+    <div className={cn("flex items-center space-x-2.5 group select-none", className)}>
+      <div className={cn(
+        "relative flex items-center justify-center transition-all duration-300 ease-out rounded-lg",
+        "group-hover:scale-110 group-hover:-rotate-3",
+        variant === 'default' ? "group-hover:shadow-lg group-hover:shadow-slate-200/50" : "shadow-none"
+      )}>
+        <Image 
+          src="/logo/logo.png" 
+          alt="InstaPact Logo" 
+          width={36} 
+          height={36} 
+          className="rounded-lg object-contain block"
+          priority
+        />
+      </div>
+      <span className={cn("text-2xl font-black tracking-tight", textColor)}>
         Insta<span className="text-indigo-600">Pact</span>
       </span>
       {showBeta && (

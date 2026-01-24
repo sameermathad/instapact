@@ -128,7 +128,7 @@ export function HeroWidget() {
           </Button>
           
           <p className="text-xs text-center text-slate-400 font-medium">
-            Start your first contract for free. No credit card required.
+            Start your first Agreement for free. No credit card required.
           </p>
         </form>
       </CardContent>

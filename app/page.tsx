@@ -5,7 +5,7 @@ import { Footer } from "@/components/landing/footer";
 import { Navbar } from "@/components/landing/navbar";
 import { PricingSection } from "@/components/landing/pricing-section";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Zap, CheckCircle2, ArrowRight, Lock, Scale, FileText, FileCheck, DollarSign } from "lucide-react";
+import { Shield, Zap, CheckCircle2, ArrowRight, Lock, Scale, FileCheck, DollarSign, FormIcon, SquarePen, Share2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -78,7 +78,7 @@ export default function Home() {
                   transition={{ delay: 0.4 }}
                   className="text-xl text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-light mb-10"
                 >
-                  The "Calendly for Contracts." Create legally binding micro-agreements in seconds. No logins for clients. Just a link.
+                  The "Calendly for Agreements." Create legally binding micro-agreements in seconds. No logins for clients. Just a link.
                 </motion.p>
                 
                 <motion.div 
@@ -274,7 +274,7 @@ export default function Home() {
                    className="relative z-10 group"
                  >
                     <div className="w-24 h-24 bg-slate-800 group-hover:bg-indigo-600 transition-colors duration-300 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl border border-slate-700 group-hover:border-indigo-500">
-                       <FileText className="w-10 h-10 text-white" />
+                       <FormIcon className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold mb-4">1. Create</h3>
                     <p className="text-slate-400 leading-relaxed">Select a template (Scope Change, NDA, Deal Memo). Type the details in seconds.</p>
@@ -288,7 +288,7 @@ export default function Home() {
                     className="relative z-10 group"
                  >
                     <div className="w-24 h-24 bg-slate-800 group-hover:bg-indigo-600 transition-colors duration-300 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl border border-slate-700 group-hover:border-indigo-500">
-                       <Zap className="w-10 h-10 text-white" />
+                       <Share2 className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold mb-4">2. Link</h3>
                     <p className="text-slate-400 leading-relaxed">Get a secure instapact.in link. WhatsApp or Slack it simply to your client.</p>
@@ -302,7 +302,7 @@ export default function Home() {
                     className="relative z-10 group"
                  >
                     <div className="w-24 h-24 bg-slate-800 group-hover:bg-emerald-500 transition-colors duration-300 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl border border-slate-700 group-hover:border-emerald-400">
-                       <CheckCircle2 className="w-10 h-10 text-white" />
+                       <SquarePen className="w-10 h-10 text-white" />
                     </div>
                     <h3 className="text-2xl font-bold mb-4">3. Signed</h3>
                     <p className="text-slate-400 leading-relaxed">Client clicks 'Approve' on mobile. You get a signed PDF instantly.</p>
@@ -390,7 +390,7 @@ export default function Home() {
                     
                     <Link href="/dashboard/new?type=DEAL" className="mt-auto">
                        <Button variant="ghost" className="w-full bg-slate-800/50 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800 hover:border-slate-700 justify-between group-hover:pl-6 transition-all duration-300 h-11 rounded-lg">
-                          Start Deal <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          Get Started <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                        </Button>
                     </Link>
                  </motion.div>

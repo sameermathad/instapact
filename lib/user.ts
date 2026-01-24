@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface UserProfile {
@@ -23,8 +23,11 @@ export interface UserProfile {
   notifyOnSign?: boolean;
   // Billing
   plan?: 'free' | 'single' | 'standard' | 'agency';
-  credits?: number;
+  credits?: number; // Extra credits purchased
   
+  // Usage tracking
+  lifetimeCount?: number; // Total docs created ever (for non-monthly plans)
+
   // Subscription Details
   subscriptionStatus?: 'active' | 'past_due' | 'canceled' | 'incomplete';
   subscriptionId?: string;
@@ -74,4 +77,16 @@ export async function updateUserProfile(uid: string, data: Partial<UserProfile>)
     console.error("Error updating user profile:", error);
     throw error;
   }
+}
+
+export async function incrementUserContractCount(uid: string): Promise<void> {
+    try {
+        const docRef = doc(db, USERS_COLLECTION, uid);
+        await updateDoc(docRef, {
+            lifetimeCount: increment(1)
+        });
+    } catch (error) {
+        console.error("Error incrementing contract count:", error);
+        // If doc doesn't exist, create it (edge case)
+    }
 }

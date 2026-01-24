@@ -17,6 +17,7 @@ import { Loader2, ArrowLeft, ArrowRight, Target, Shield, Briefcase, FileText, Us
 import { toast } from "sonner"
 import Link from "next/link"
 import { useUsageLimit } from "@/hooks/useUsageLimit"
+import { PLANS } from "@/lib/config"
 
 export default function NewContractPage() {
   return (
@@ -119,14 +120,14 @@ function NewContractContent() {
               <CardDescription>Perfect for regular use</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-slate-900">₹399<span className="text-sm font-normal text-slate-500">/mo</span></p>
+              <p className="text-2xl font-bold text-slate-900">₹{PLANS.standard.price}<span className="text-sm font-normal text-slate-500">/mo</span></p>
               <ul className="text-sm text-left mt-4 space-y-2 text-slate-600">
                 <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> 10 agreements / month</li>
                 <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> No watermarks</li>
               </ul>
             </CardContent>
             <CardFooter>
-              <Link href="/dashboard/upgrade" className="w-full">
+              <Link href="/dashboard/profile?tab=plans" className="w-full">
                 <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Upgrade to Standard</Button>
               </Link>
             </CardFooter>
@@ -138,14 +139,14 @@ function NewContractContent() {
               <CardDescription>For power users</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-slate-900">₹999<span className="text-sm font-normal text-slate-500">/mo</span></p>
+              <p className="text-2xl font-bold text-slate-900">₹{PLANS.agency.price}<span className="text-sm font-normal text-slate-500">/mo</span></p>
               <ul className="text-sm text-left mt-4 space-y-2 text-slate-600">
                 <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> Unlimited agreements</li>
                 <li className="flex items-center"><Sparkles className="w-3 h-3 mr-2 text-indigo-500" /> Custom branding</li>
               </ul>
             </CardContent>
             <CardFooter>
-              <Link href="/dashboard/upgrade" className="w-full">
+              <Link href="/dashboard/profile?tab=plans" className="w-full">
                 <Button variant="outline" className="w-full">View Agency Plan</Button>
               </Link>
             </CardFooter>

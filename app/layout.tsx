@@ -19,8 +19,8 @@ const merriweather = Merriweather({
 });
 
 export const metadata: Metadata = {
-  title: "InstaPact | Instant Digital Contracts",
-  description: "Create and sign legally binding contracts in under 30 seconds.",
+  title: "InstaPact | Instant Digital Agreements",
+  description: "Create and sign legally binding agreements in under 30 seconds.",
 };
 
 export default function RootLayout({

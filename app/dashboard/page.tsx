@@ -65,7 +65,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           {user && (
-            <Link href={isAtLimit ? "/dashboard/upgrade" : "/dashboard/new"}>
+            <Link href={isAtLimit ? "/dashboard/profile?tab=plans" : "/dashboard/new"}>
               <Button 
                 disabled={isAtLimit}
                 className={cn(
@@ -84,7 +84,7 @@ export default function DashboardPage() {
             </Link>
           )}
           {isAtLimit && (
-            <Link href="/dashboard/upgrade">
+            <Link href="/dashboard/profile?tab=plans">
               <Button variant="outline" className="w-full sm:w-auto border-indigo-200 text-indigo-600 hover:bg-indigo-50">
                 <Sparkles className="w-4 h-4 mr-2" /> Upgrade
               </Button>
@@ -104,7 +104,7 @@ export default function DashboardPage() {
               <p className="text-indigo-100 text-xs sm:text-sm">Upgrade to Standard to create up to 10 agreements per month.</p>
             </div>
           </div>
-          <Link href="/dashboard/upgrade">
+          <Link href="/dashboard/profile?tab=plans">
             <Button size="sm" className="bg-white text-indigo-600 hover:bg-indigo-50 font-bold whitespace-nowrap">
               Upgrade Now
             </Button>

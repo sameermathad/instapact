@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel 
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, LayoutDashboard, PlusCircle } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, PlusCircle, Sparkles } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 export function Navbar() {
@@ -65,6 +65,12 @@ export function Navbar() {
                         <Link href="/dashboard/profile" className="flex items-center w-full">
                           <Settings className="mr-3 h-4 w-4" />
                           <span>Profile Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="cursor-pointer py-2.5 rounded-lg focus:bg-indigo-50 focus:text-indigo-700">
+                        <Link href="/dashboard/profile?tab=plans" className="flex items-center w-full">
+                          <Sparkles className="mr-3 h-4 w-4" />
+                          <span>View Plans</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
