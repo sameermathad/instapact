@@ -18,16 +18,21 @@ export async function POST(req: Request) {
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
+    // Check if plan is annual to adjust total_count
+    // For annual plans, 120 counts would be 120 years, which might be rejected.
+    // Let's use 10 counts for annual (10 years) and 120 for monthly (10 years).
+    const isAnnual = planId.includes('annual') || planId.toLowerCase().includes('year');
+    
     const subscription = await instance.subscriptions.create({
       plan_id: planId,
       customer_notify: 1,
-      total_count: 120, // 10 years for monthly, 120 years for annual (effectively indefinite)
+      total_count: isAnnual ? 10 : 120, 
       quantity: 1,
     });
 
     return NextResponse.json(subscription);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Razorpay Subscription Error:', error);
-    return NextResponse.json({ error: 'Error creating subscription' }, { status: 500 });
+    return NextResponse.json({ error: error.description || 'Error creating subscription' }, { status: 500 });
   }
 }

@@ -1,3 +1,10 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog",
+  description: "Insights on freelancing, agreements, and growing your agency from the InstaPact team.",
+};
+
 export default function BlogPage() {
   return (
      <div className="space-y-8">

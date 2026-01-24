@@ -23,8 +23,8 @@ export async function POST(req: Request) {
     const order = await instance.orders.create(options);
 
     return NextResponse.json(order);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Razorpay Order Error:', error);
-    return NextResponse.json({ error: 'Error creating order' }, { status: 500 });
+    return NextResponse.json({ error: error.description || 'Error creating order' }, { status: 500 });
   }
 }

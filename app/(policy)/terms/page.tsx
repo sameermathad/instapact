@@ -1,4 +1,11 @@
-export default function TermsOfService() {
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms and Conditions",
+  description: "Read the terms and conditions for using InstaPact's legal agreement services.",
+};
+
+export default function TermsAndConditions() {
   return (
     <>
       <h1>Terms and Conditions</h1>

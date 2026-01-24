@@ -88,17 +88,29 @@ export function usePayment(): UsePaymentReturn {
 
     return new Promise(async (resolve) => {
         try {
+            console.log("Preparing payment...", { type, itemId, amount });
+            
             if (!window.Razorpay) {
+                console.log("Razorpay SDK missing, attempting to load...");
                 const loaded = await loadSDK();
                 if (!loaded) {
+                    console.error("SDK load failed");
                     toast.error("Payment SDK failed to load. Please disable ad-blockers.", { id: 'payment-process' });
                     setProcessing(false);
                     return resolve(false);
                 }
             }
+
             const planConfig = PLANS[itemId as PlanType];
             const useSubscription = type === 'plan_upgrade' && planConfig?.razorpayPlanId;
+            const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
+            if (!keyId) {
+                console.error("Razorpay Key ID missing from environment");
+                throw new Error("Razorpay configuration missing (Key ID)");
+            }
+
+            console.log("Fetching payment data from API...", { useSubscription });
             let paymentData;
             if (useSubscription) {
                 const res = await fetch('/api/razorpay/subscription', {
@@ -118,11 +130,16 @@ export function usePayment(): UsePaymentReturn {
                 if (!res.ok) throw new Error(paymentData.error || 'Failed to create order');
             }
 
+            console.log("Payment data received, opening Razorpay modal", paymentData);
+
             const options: any = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                key: keyId,
                 name: "InstaPact",
                 description: type === 'plan_upgrade' ? `Upgrade to ${planConfig?.name || itemId}` : 'Credit Purchase',
+                image: "https://www.instapact.in/logo/logo.png",
                 handler: async function (response: any) {
+                    console.log("Payment successful, verifying...", response);
+                    clearTimeout(watchdog);
                     toast.loading("Verifying payment...", { id: 'payment-process' });
                     try {
                        const verifyRes = await fetch('/api/razorpay/verify', {
@@ -138,14 +155,15 @@ export function usePayment(): UsePaymentReturn {
                        
                        const verifyData = await verifyRes.json();
                        if (verifyRes.ok && verifyData.status === 'success') {
+                           console.log("Verification successful");
                            await fulfillPurchase(type, itemId);
                            resolve(true);
                        } else {
-                           throw new Error('Verification failed');
+                           throw new Error(verifyData.message || 'Verification failed');
                        }
-                    } catch(e) {
-                        toast.error("Payment verification failed", { id: 'payment-process' });
-                        console.error(e);
+                    } catch(e: any) {
+                        console.error("Verification error:", e);
+                        toast.error(e.message || "Payment verification failed", { id: 'payment-process' });
                         resolve(false);
                     } finally {
                         setProcessing(false);
@@ -156,10 +174,12 @@ export function usePayment(): UsePaymentReturn {
                     email: user.email || '',
                 },
                 theme: {
-                    color: "#2563eb"
+                    color: "#6366f1"
                 },
                 modal: {
                     ondismiss: function() {
+                        console.log("Payment modal dismissed by user");
+                        clearTimeout(watchdog);
                         setProcessing(false);
                         toast.dismiss('payment-process');
                         toast.error("Payment cancelled");
@@ -176,11 +196,29 @@ export function usePayment(): UsePaymentReturn {
                 options.order_id = paymentData.id;
             }
 
+            console.log("Initializing Razorpay checkout...");
             const rzp1 = new window.Razorpay(options);
+            
+            // Watchdog timer: If modal doesn't open or dismiss within 15 seconds, reset state
+            const watchdog = setTimeout(() => {
+                if (processing) { 
+                    console.log("Watchdog timer triggered: resetting processing state after 15s");
+                    setProcessing(false);
+                }
+            }, 15000);
+
+            rzp1.on('payment.failed', function (response: any){
+                clearTimeout(watchdog);
+                console.error("Payment failed:", response.error);
+                toast.error(response.error.description || "Payment failed", { id: 'payment-process' });
+                setProcessing(false);
+                resolve(false);
+            });
+
             rzp1.open();
-        } catch (error) {
-            console.error("Payment error:", error);
-            toast.error("Payment initialization failed", { id: 'payment-process' });
+        } catch (error: any) {
+            console.error("Payment initialization error:", error);
+            toast.error(error.message || "Payment initialization failed", { id: 'payment-process' });
             setProcessing(false);
             resolve(false);
         }

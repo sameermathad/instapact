@@ -1,3 +1,10 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Read InstaPact's privacy policy to understand how we handle your data.",
+};
+
 export default function PrivacyPolicy() {
   return (
     <>

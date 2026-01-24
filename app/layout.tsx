@@ -19,8 +19,52 @@ const merriweather = Merriweather({
 });
 
 export const metadata: Metadata = {
-  title: "InstaPact | Instant Digital Agreements",
-  description: "Create and sign legally binding agreements in under 30 seconds.",
+  title: {
+    default: "InstaPact | Instant Digital Agreements for Freelancers & Agencies",
+    template: "%s | InstaPact"
+  },
+  description: "Create, sign, and manage legally binding agreements in under 30 seconds. Perfect for freelancers, agencies, and small businesses.",
+  keywords: ["digital agreements", "e-signature", "freelance contracts", "business agreements", "legal tech", "digitally sign documents"],
+  authors: [{ name: "Sameer Mathad" }],
+  creator: "Sameer Mathad",
+  metadataBase: new URL("https://www.instapact.in"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://www.instapact.in",
+    siteName: "InstaPact",
+    title: "InstaPact | Instant Digital Agreements",
+    description: "Sign legally binding agreements in under 30 seconds.",
+    images: [
+      {
+        url: "/logo/logo@3x.png",
+        width: 1200,
+        height: 630,
+        alt: "InstaPact Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "InstaPact | Instant Digital Agreements",
+    description: "Sign legally binding agreements in under 30 seconds.",
+    images: ["/logo/logo@3x.png"],
+    creator: "@instapact",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

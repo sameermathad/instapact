@@ -1,3 +1,10 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Refund and Cancellation Policy",
+  description: "Learn about refunds and cancellations for InstaPact digital services and subscriptions.",
+};
+
 export default function RefundPolicy() {
   return (
     <>

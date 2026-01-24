@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Check, Zap, Building2, ArrowRight } from "lucide-react"
+import { Check, Zap, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -16,7 +16,8 @@ interface PlanSelectionProps {
 
 export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSelectionProps) {
   const router = useRouter()
-  const { processPayment, processing } = usePayment()
+  const { processPayment } = usePayment()
+  const [activePlanId, setActivePlanId] = useState<string | null>(null)
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
 
   const plans = [
@@ -129,14 +130,18 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
               <CardFooter>
                 <Button 
                   onClick={async () => {
-                    const planDetails = plans.find(p => p.id === plan.id) || plans[0]
-                    const success = await processPayment('plan_upgrade', plan.id as any, planDetails.price)
-                    if (success) {
-                       if (onSuccess) onSuccess()
-                       else router.push(redirectPath)
+                    setActivePlanId(plan.id)
+                    try {
+                      const success = await processPayment('plan_upgrade', plan.id as any, plan.price)
+                      if (success) {
+                         if (onSuccess) onSuccess()
+                         else router.push(redirectPath)
+                      }
+                    } finally {
+                      setActivePlanId(null)
                     }
                   }} 
-                  disabled={processing}
+                  disabled={!!activePlanId}
                   variant={plan.variant || 'default'}
                   className={cn(
                     "w-full font-bold h-11",
@@ -144,7 +149,7 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
                     plan.id.includes('agency') && "hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200"
                   )}
                 >
-                  {processing ? "Starting..." : plan.buttonText}
+                  {activePlanId === plan.id ? "Starting..." : plan.buttonText}
                 </Button>
               </CardFooter>
             </Card>
