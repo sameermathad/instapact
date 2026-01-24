@@ -37,7 +37,7 @@ export default function Home() {
 
       <main className="flex-grow">
         {/* Massive Hero Section */}
-        <section className="relative pt-20 pb-0 lg:pt-32 overflow-hidden">
+        <section className="relative pt-16 pb-16 lg:pt-24 lg:pb-24 overflow-hidden">
           {/* Background decoration */}
            <motion.div 
              initial={{ opacity: 0 }}
@@ -47,10 +47,10 @@ export default function Home() {
            ></motion.div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+            <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
               
               {/* Left Column: Copy */}
-              <div className="flex-1 text-center lg:text-left space-y-10">
+              <div className="flex-1 text-center lg:text-left space-y-8">
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -65,18 +65,37 @@ export default function Home() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.8 }}
-                  className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 leading-tight mb-8"
+                  className="text-5xl sm:text-6xl lg:text-[4rem] font-black tracking-tight text-slate-900 leading-[1.1] mb-6"
                 >
                   Agreements <br/>
                   at the speed of <br/>
-                  <span className="text-indigo-600">chat.</span>
+                  <span className="text-indigo-600 inline-flex">
+                    {"chat.".split("").map((char, index) => (
+                      <motion.span
+                        key={index}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{
+                          duration: 0.1,
+                          delay: 1 + index * 0.1,
+                          ease: "easeIn"
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                    <motion.span
+                      animate={{ opacity: [1, 1] }}
+                      className="ml-0.5"
+                    />
+                  </span>
                 </motion.h1>
                 
                 <motion.p 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-xl text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-light mb-10"
+                  className="text-lg sm:text-xl text-slate-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-light mb-8"
                 >
                   The "Calendly for Agreements." Create legally binding micro-agreements in seconds. No logins for clients. Just a link.
                 </motion.p>
@@ -91,10 +110,7 @@ export default function Home() {
                     <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors">
                       <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-slate-900 font-semibold text-lg leading-tight">Legally Binding</span>
-                      <span className="text-slate-500 text-[10px] font-medium uppercase tracking-tight">ESIGN, UETA & IT Act 2000</span>
-                    </div>
+                    <span className="text-slate-900 font-semibold text-lg">Legally Binding</span>
                   </div>
                   <div className="flex items-center group">
                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
@@ -170,7 +186,10 @@ export default function Home() {
                     <div className="p-4 bg-emerald-50 rounded-2xl mb-4 text-emerald-600 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-emerald-100">
                         <Scale className="w-6 h-6" />
                     </div>
-                    <div className="font-bold text-slate-900 text-lg">Legally Binding</div>
+                    <div className="flex flex-col items-center">
+                       <div className="font-bold text-slate-900 text-lg">Legally Binding</div>
+                       <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">ESIGN, UETA & IT Act 2000</div>
+                    </div>
                  </motion.div>
                  <div className="hidden md:block w-px bg-slate-200"></div>
                  <motion.div variants={fadeInUp} className="flex flex-col items-center group cursor-default">

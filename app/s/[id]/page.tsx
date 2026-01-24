@@ -141,7 +141,7 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
           </div>
           <h1 className="text-xl font-bold text-slate-900">Contract Not Found</h1>
           <p className="text-slate-500">
-            This contract link may be invalid or expired. Please contact the creator for a new link.
+            This agreement link may be invalid or expired. Please contact the creator for a new link.
           </p>
           <div className="pt-4">
              <Link href="/">

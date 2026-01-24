@@ -11,7 +11,7 @@ export function Footer() {
                <Logo showBeta={false} variant="inverted" />
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-slate-500">
-              Professional infrastructure for independent creators. Contracts, payments, and peace of mind.
+              Professional infrastructure for independent creators. Agreements, payments, and peace of mind.
             </p>
           </div>
           

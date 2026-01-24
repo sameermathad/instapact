@@ -193,7 +193,7 @@ export default function ProfilePage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-900 font-heading">Settings</h1>
-            <p className="text-slate-500">Global preferences for your contracts.</p>
+            <p className="text-slate-500">Global preferences for your Agreements.</p>
           </div>
           {['general', 'legal', 'payments', 'notifications', 'security'].includes(activeTab) && (
             <Button onClick={() => handleSave()} disabled={saving} className="w-full md:w-auto">
@@ -267,7 +267,7 @@ export default function ProfilePage() {
                       <SignatureIcon className="h-5 w-5 text-indigo-600" />
                       Saved Signature
                     </CardTitle>
-                    <CardDescription>Sign once, reuse across all contracts.</CardDescription>
+                    <CardDescription>Sign once, reuse across all agreements.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 bg-slate-50 relative group">
@@ -310,7 +310,7 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle>Legal Information</CardTitle>
-                        <CardDescription>Critical data for contract "BETWEEN" clauses.</CardDescription>
+                        <CardDescription>Critical data for agreement "BETWEEN" clauses.</CardDescription>
                       </div>
                       <Stamp className="h-8 w-8 text-indigo-100" />
                     </div>
@@ -388,7 +388,7 @@ export default function ProfilePage() {
                         placeholder="e.g. Bank Transfer to HDFC: XXXXXXX or UPI: sam@okhdfc"
                         className="min-h-[120px]"
                       />
-                      <p className="text-[10px] text-slate-400 italic">Automatically injected into the "Payment Terms" section of new contracts.</p>
+                      <p className="text-[10px] text-slate-400 italic">Automatically injected into the "Payment Terms" section of new agreements.</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -609,12 +609,12 @@ export default function ProfilePage() {
                 <Card className="shadow-none border-slate-200">
                   <CardHeader>
                     <CardTitle>Email Alerts</CardTitle>
-                    <CardDescription>Stay updated on your contract lifecycle.</CardDescription>
+                    <CardDescription>Stay updated on your agreement lifecycle.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-base">Contract Viewed</Label>
+                        <Label className="text-base">Agreement Viewed</Label>
                         <p className="text-xs text-slate-500 italic">Get a high-intent signal when the client opens your link.</p>
                       </div>
                       <Switch 
@@ -625,7 +625,7 @@ export default function ProfilePage() {
                     <Separator className="bg-slate-100" />
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-base">Contract Signed</Label>
+                        <Label className="text-base">Agreement Signed</Label>
                         <p className="text-xs text-slate-500 italic">Receive confirmation the moment a deal is finalized.</p>
                       </div>
                       <Switch 

@@ -46,7 +46,7 @@ export default function LandingPageVariant1() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
                  <Link href="/dashboard">
                    <Button size="lg" className="h-14 px-8 text-lg rounded-full shadow-xl shadow-indigo-200 bg-indigo-600 hover:bg-indigo-700">
-                     Create Free Contract
+                     Create Free Agreement
                    </Button>
                  </Link>
                  <Link href="#demo">

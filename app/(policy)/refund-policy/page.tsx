@@ -6,7 +6,7 @@ export default function RefundPolicy() {
 
       <h2>1. Digital Products</h2>
       <p>
-        InstaPact provides digital services (contract generation) and digital goods. Due to the nature of digital content, we generally do not offer refunds once the service has been used (e.g., a document has been generated or downloaded).
+        InstaPact provides digital services (agreement generation) and digital goods. Due to the nature of digital content, we generally do not offer refunds once the service has been used (e.g., a document has been generated or downloaded).
       </p>
 
       <h2>2. Single Document Purchases</h2>

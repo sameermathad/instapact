@@ -222,7 +222,27 @@ export default function AuthPage() {
                   <Sparkles className="w-3 h-3 mr-2" /> Trust Layer
                 </div>
                 <h2 className="text-4xl font-black text-white leading-[1.05] tracking-tight">
-                   Agreements <br/>at the speed <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-600 italic font-serif">of chat.</span>
+                   Agreements <br/>at the speed <br/>
+                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-indigo-600 inline-flex">
+                    {"of chat.".split("").map((char, index) => (
+                      <motion.span
+                        key={index}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{
+                          duration: 0.05,
+                          delay: 0.8 + index * 0.05,
+                          ease: "easeIn"
+                        }}
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                    <motion.span
+                      animate={{ opacity: [1, 1] }}
+                      className="ml-1"
+                    />
+                  </span>
                 </h2>
               </div>
 

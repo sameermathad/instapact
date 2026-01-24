@@ -184,7 +184,7 @@ export function PricingSection() {
         
         <div className="mt-12 text-center">
             <a href="/dashboard/new" className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 underline underline-offset-4">
-                Just started? Create your first contract for free
+                Just started? Create your first agreement for free
             </a>
         </div>
       </div>

@@ -115,14 +115,14 @@ export function HeroWidget() {
 
           <Button 
             type="submit" 
-            className="w-full h-14 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-200 mt-2 transition-transform active:scale-95"
+            className="w-full h-12 text-base font-bold bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-200 mt-2 transition-transform active:scale-95"
             disabled={loading}
           >
             {loading ? (
-              <Loader2 className="w-6 h-6 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <span className="flex items-center">
-                Generate Agreement <ArrowRight className="ml-2 w-5 h-5" />
+                Generate Agreement <ArrowRight className="ml-2 w-4 h-4" />
               </span>
             )}
           </Button>

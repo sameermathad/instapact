@@ -21,7 +21,7 @@ export default function TermsOfService() {
 
       <h2>4. Digital Services and Content</h2>
       <p>
-        InstaPact provides digital tools for creating contracts. We are not a law firm and use of our services does not constitute legal advice. You are responsible for reviewing all contracts generated through our platform.
+        InstaPact provides digital tools for creating agreements. We are not a law firm and use of our services does not constitute legal advice. You are responsible for reviewing all agreements generated through our platform.
       </p>
 
       <h2>5. Contact Us</h2>
