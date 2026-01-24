@@ -188,7 +188,7 @@ export default function Home() {
                     </div>
                     <div className="flex flex-col items-center">
                        <div className="font-bold text-slate-900 text-lg">Legally Binding</div>
-                       <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">ESIGN, UETA & IT Act 2000</div>
+                       <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">ESIGN, UETA, eIDAS & IT Act 2000</div>
                     </div>
                  </motion.div>
                  <div className="hidden md:block w-px bg-slate-200"></div>
