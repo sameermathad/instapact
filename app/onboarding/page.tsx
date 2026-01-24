@@ -54,6 +54,15 @@ export default function OnboardingPage() {
         </div>
 
         <PlanSelection />
+
+        <div className="pt-4 text-center">
+          <button 
+            onClick={handleFreePlan}
+            className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors underline underline-offset-4"
+          >
+            I&apos;ll stick with the free tier for now
+          </button>
+        </div>
       </div>
     </div>
   )

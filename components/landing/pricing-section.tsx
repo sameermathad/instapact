@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Zap, Shield, Crown, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export function PricingSection() {
   const [isGlobal, setIsGlobal] = useState(true); // Default to Global (USD)
@@ -93,9 +94,11 @@ export function PricingSection() {
                  </div>
               </div>
 
-              <Button variant="outline" className="w-full h-12 text-base font-semibold border-2 hover:bg-slate-50 rounded-xl">
-                 Buy Credits
-              </Button>
+              <Link href="/auth" className="block w-full">
+                <Button variant="outline" className="w-full h-12 text-base font-semibold border-2 hover:bg-slate-50 rounded-xl">
+                   Buy Credits
+                </Button>
+              </Link>
            </motion.div>
 
            {/* Standard (Most Popular) */}
@@ -136,9 +139,11 @@ export function PricingSection() {
                  </div>
               </div>
 
-              <Button className="w-full h-12 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/50 rounded-xl">
-                 Start Free Trial
-              </Button>
+              <Link href="/auth" className="block w-full">
+                <Button className="w-full h-12 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-900/50 rounded-xl">
+                   Start Free Trial
+                </Button>
+              </Link>
            </motion.div>
 
            {/* Agency (Unlimited) */}
@@ -176,9 +181,11 @@ export function PricingSection() {
                  </div>
               </div>
 
-              <Button variant="outline" className="w-full h-12 text-base font-semibold border-indigo-100 text-indigo-600 hover:bg-indigo-50 rounded-xl">
-                 Contact Sales
-              </Button>
+              <Link href="/auth" className="block w-full">
+                <Button variant="outline" className="w-full h-12 text-base font-semibold border-indigo-100 text-indigo-600 hover:bg-indigo-50 rounded-xl">
+                   Contact Sales
+                </Button>
+              </Link>
            </motion.div>
         </div>
         
