@@ -1,16 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { updateUserProfile } from "@/lib/user"
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 import { PlanSelection } from "@/components/pricing/plan-selection"
 import { Logo } from "@/components/logo"
 
 export default function OnboardingPage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
+  
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-[#FDFCF9] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
   
   const handleFreePlan = async () => {
     if (!user) return

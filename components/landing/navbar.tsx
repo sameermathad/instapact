@@ -86,10 +86,10 @@ export function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/dashboard" className="text-base font-medium text-slate-500 hover:text-slate-900 transition-colors hidden sm:block">
+                  <Link href="/auth" className="text-base font-medium text-slate-500 hover:text-slate-900 transition-colors hidden sm:block">
                     Login
                   </Link>
-                  <Link href="/dashboard">
+                  <Link href="/auth">
                     <Button size="lg" className="rounded-xl px-6 font-semibold shadow-lg shadow-indigo-200 bg-indigo-600 hover:bg-indigo-700 text-white border-none">Get Started</Button>
                   </Link>
                 </>

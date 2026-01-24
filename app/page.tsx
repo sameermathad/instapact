@@ -91,13 +91,16 @@ export default function Home() {
                     <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors">
                       <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                     </div>
-                    <span className="text-slate-900 font-semibold text-lg">Legally Binding</span>
+                    <div className="flex flex-col">
+                      <span className="text-slate-900 font-semibold text-lg leading-tight">Legally Binding</span>
+                      <span className="text-slate-500 text-[10px] font-medium uppercase tracking-tight">ESIGN, UETA & IT Act 2000</span>
+                    </div>
                   </div>
                   <div className="flex items-center group">
                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
                       <Zap className="w-5 h-5 text-blue-600" />
                     </div>
-                    <span className="text-slate-900 font-semibold text-lg">Under 30s</span>
+                    <span className="text-slate-900 font-semibold text-lg">Under 30secs</span>
                   </div>
                 </motion.div>
               </div>
@@ -418,8 +421,8 @@ export default function Home() {
                     <span className="font-bold text-slate-900 text-lg">Digital Audit Trail</span>
                  </div>
               </div>
-              <p className="text-center text-slate-400 text-sm mt-8">
-                 Secure. Encrypted. Compliant.
+              <p className="text-center text-slate-400 text-sm mt-8 font-medium">
+                 Compliant with ESIGN, UETA, eIDAS & IT Act 2000.
               </p>
            </div>
         </section>
@@ -445,7 +448,7 @@ export default function Home() {
               >
                 Join thousands of designers, developers, and consultants who use InstaPact.
               </motion.p>
-              <Link href="/dashboard">
+              <Link href="/auth">
                  <motion.div
                    initial={{ opacity: 0, scale: 0.9 }}
                    whileInView={{ opacity: 1, scale: 1 }}
