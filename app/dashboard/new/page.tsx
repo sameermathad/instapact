@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
-import { createContract } from "@/lib/contracts"
+import { createContract, getContract, updateContractFields } from "@/lib/contracts"
 import { TEMPLATES, getTemplate } from "@/lib/templates"
 import { ContractMeta, Currency, TemplateType } from "@/types"
 import { Button } from "@/components/ui/button"
@@ -13,7 +13,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, ArrowLeft, ArrowRight, Target, Shield, Briefcase, FileText, User, Sparkles, AlertCircle } from "lucide-react"
+import { Loader2, ArrowLeft, ArrowRight, Target, Shield, Briefcase, FileText, User, Sparkles, AlertCircle, Eye, Edit3, Check, PlusCircle } from "lucide-react"
+import { ContractDisplay } from "@/components/signing/contract-display"
+import { Contract } from "@/types"
 import { toast } from "sonner"
 import Link from "next/link"
 import { useUsageLimit } from "@/hooks/useUsageLimit"
@@ -34,8 +36,10 @@ function NewContractContent() {
   const [loading, setLoading] = useState(false)
   const { isAtLimit, loading: usageLoading } = useUsageLimit()
   
-  // Use null as default to show selection screen
+  const [step, setStep] = useState<'template' | 'form' | 'preview'>('template')
   const [activeTemplate, setActiveTemplate] = useState<TemplateType | null>(null)
+  const [editableLegalText, setEditableLegalText] = useState<string>('')
+  const [editingId, setEditingId] = useState<string | null>(null)
   
   // Generic form state holder
   const [formData, setFormData] = useState<Record<string, any>>({
@@ -47,7 +51,28 @@ function NewContractContent() {
   useEffect(() => {
     // Handle Template Type from URL
     const typeParam = searchParams.get('type')
-    if (typeParam && ['SCOPE', 'NDA', 'DEAL'].includes(typeParam)) {
+    const editParam = searchParams.get('edit')
+
+    if (editParam) {
+      setEditingId(editParam)
+      const fetchEdit = async () => {
+        const c = await getContract(editParam)
+        if (c && c.creatorId === user?.uid) {
+           setActiveTemplate(c.template)
+           
+           // Ensure deliverablesList is a string for the textarea
+           const meta = { ...c.meta } as any
+           if (Array.isArray(meta.deliverablesList)) {
+             meta.deliverablesList = meta.deliverablesList.join('\n')
+           }
+
+           setFormData(meta)
+           setEditableLegalText(c.legalText || getTemplate(c.template).legalText)
+           setStep('form')
+        }
+      }
+      fetchEdit()
+    } else if (typeParam && ['SCOPE', 'NDA', 'DEAL'].includes(typeParam)) {
        setActiveTemplate(typeParam as TemplateType)
     }
 
@@ -82,12 +107,34 @@ function NewContractContent() {
 
   const handleTemplateSelect = (type: TemplateType) => {
     setActiveTemplate(type)
-    // Update URL without refreshing to support deep linking / sharing if needed (optional)
-    // router.push(`/dashboard/new?type=${type}`, { scroll: false })
+    setStep('form')
+    setEditableLegalText(getTemplate(type).legalText)
+  }
+
+  const handleGoToPreview = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!activeTemplate) return
+    
+    const templateDef = getTemplate(activeTemplate)
+    const missing = templateDef.fields
+      .filter(f => f.required && !formData[f.name])
+      .map(f => f.label)
+    
+    if (missing.length > 0) {
+      toast.error(`Missing required fields: ${missing.join(', ')}`)
+      return
+    }
+
+    setStep('preview')
+  }
+
+  const handleBackToForm = () => {
+    setStep('form')
   }
 
   const handleBackToSelection = () => {
     setActiveTemplate(null)
+    setStep('template')
     router.push('/dashboard/new') // Clean URL
   }
 
@@ -162,8 +209,7 @@ function NewContractContent() {
     )
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     if (!user) {
       toast.error("You must be logged in")
       return
@@ -207,7 +253,9 @@ function NewContractContent() {
         ...(formData.additionalFee ? { additionalFee: Number(formData.additionalFee) } : {}),
         
         // Deal Specific
-        deliverablesList: formData.deliverablesList ? formData.deliverablesList.split('\n').filter(Boolean) : null,
+        deliverablesList: (typeof formData.deliverablesList === 'string') 
+            ? formData.deliverablesList.split('\n').filter(Boolean) 
+            : formData.deliverablesList || null,
         paymentSchedule: formData.paymentSchedule || null
       }
       
@@ -227,20 +275,26 @@ function NewContractContent() {
       console.log("Submitting agreement payload:", {
         uid: user.uid,
         template: activeTemplate,
-        meta: sanitizedMeta
+        meta: sanitizedMeta,
+        editingId
       })
 
-      const contract = await createContract(
-        user.uid,
-        user.displayName || 'Creator',
-        user.email || '',
-        activeTemplate,
-        sanitizedMeta
-      )
+      if (editingId) {
+        await updateContractFields(editingId, sanitizedMeta, editableLegalText)
+        toast.success("Agreement updated successfully!")
+      } else {
+        const contract = await createContract(
+          user.uid,
+          user.displayName || 'Creator',
+          user.email || '',
+          activeTemplate,
+          sanitizedMeta,
+          editableLegalText
+        )
+        console.log("Agreement created successfully:", contract.id)
+        toast.success("Agreement created successfully!")
+      }
       
-      console.log("Agreement created successfully:", contract.id)
-
-      toast.success("Agreement created successfully!")
       router.push('/dashboard')
       
     } catch (error) {
@@ -370,53 +424,154 @@ function NewContractContent() {
     )
   }
 
-  // --- Render Form Screen ---
-  const currentTemplateDef = getTemplate(activeTemplate)
+   // --- Render Form Screen ---
+  if (step === 'form' && activeTemplate) {
+    const currentTemplateDef = getTemplate(activeTemplate)
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 pb-20">
+        <div className="flex items-center space-x-4 mb-6">
+          <Button onClick={handleBackToSelection} variant="ghost" size="sm" className="pl-0 text-slate-500 hover:text-slate-900">
+             <ArrowLeft className="h-4 w-4 mr-1" /> Back to Templates
+          </Button>
+        </div>
+        
+        <div className="flex items-center justify-between border-b border-slate-200 pb-6">
+           <div>
+              <h1 className="text-2xl font-bold text-slate-900">Step 2: Agreement Details</h1>
+              <p className="text-slate-500 text-sm mt-1">{currentTemplateDef.name} — {currentTemplateDef.description}</p>
+           </div>
+        </div>
 
-  return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-20">
-      <div className="flex items-center space-x-4 mb-6">
-        <Button onClick={handleBackToSelection} variant="ghost" size="sm" className="pl-0 text-slate-500 hover:text-slate-900">
-           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Templates
-        </Button>
+        <Card className="border-indigo-100 shadow-sm overflow-hidden">
+          <CardContent className="pt-8 space-y-8">
+              <form id="contract-form" onSubmit={handleGoToPreview} className="space-y-6">
+                  {currentTemplateDef.fields.map(renderField)}
+              </form>
+          </CardContent>
+          <CardFooter className="bg-slate-50 border-t border-slate-100 flex justify-between py-6 px-8">
+              <Button variant="ghost" onClick={handleBackToSelection}>Cancel</Button>
+              <Button 
+                type="submit" 
+                form="contract-form"
+                className="min-w-[140px]"
+              >
+                Preview Agreement <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+          </CardFooter>
+        </Card>
       </div>
-      
-      <div className="flex items-center justify-between border-b border-slate-200 pb-6">
-         <div>
-            <h1 className="text-2xl font-bold text-slate-900">Create New {currentTemplateDef.name}</h1>
-            <p className="text-slate-500 text-sm mt-1">{currentTemplateDef.description}</p>
-         </div>
-      </div>
+    )
+  }
 
-      <Card className="border-indigo-100 shadow-sm overflow-hidden">
-        <CardContent className="pt-8 space-y-8">
-            <form id="contract-form" onSubmit={handleSubmit} className="space-y-6">
-                {currentTemplateDef.fields.map(renderField)}
-            </form>
-        </CardContent>
-        <CardFooter className="bg-slate-50 border-t border-slate-100 flex justify-between py-6 px-8">
-            <Button variant="ghost" onClick={handleBackToSelection}>Cancel</Button>
-            <Button 
-            type="submit" 
-            form="contract-form"
-            disabled={loading}
-            className="min-w-[140px]"
-            >
-            {loading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-                <>
-                Create Agreement <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-            )}
-            </Button>
-        </CardFooter>
-      </Card>
+  // --- Render Preview Screen ---
+  if (step === 'preview' && activeTemplate) {
+      const templateDef = getTemplate(activeTemplate)
       
-      {/* Preview hint */}
-      <div className="text-center text-xs text-slate-400">
-        <p>A legally binding PDF will be generated upon signing.</p>
-      </div>
-    </div>
-  )
+      // Create a preview contract object
+      const previewContract: Contract = {
+          id: 'preview',
+          creatorId: user?.uid || '',
+          creatorName: user?.displayName || 'Creator',
+          creatorEmail: user?.email || '',
+          template: activeTemplate,
+          status: 'pending',
+          meta: {
+            clientName: formData.clientName,
+            clientEmail: formData.clientEmail,
+            currency: formData.currency as Currency,
+            description: formData.description,
+            amount: Number(formData.amount),
+            originalProjectRef: formData.originalProjectRef,
+            newDeliverables: formData.newDeliverables,
+            additionalFee: Number(formData.additionalFee),
+            deliverablesList: (typeof formData.deliverablesList === 'string') 
+              ? formData.deliverablesList.split('\n').filter(Boolean) 
+              : formData.deliverablesList || [],
+            paymentSchedule: formData.paymentSchedule
+          } as any,
+          auditTrail: null,
+          createdAt: new Date(),
+          expiresAt: new Date(),
+          legalText: editableLegalText
+      }
+
+      return (
+          <div className="max-w-5xl mx-auto space-y-8 pb-20">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                      <Button onClick={handleBackToForm} variant="ghost" size="sm" className="pl-0 text-slate-500 hover:text-slate-900 mb-2">
+                        <ArrowLeft className="h-4 w-4 mr-1" /> Back to Edit Fields
+                      </Button>
+                      <h1 className="text-2xl font-bold text-slate-900">Step 3: Review & Customize Terms</h1>
+                      <p className="text-slate-500 text-sm">Review the preview below. You can edit the legal terms directly.</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                      <Button variant="outline" onClick={handleBackToForm}>
+                         <Edit3 className="w-4 h-4 mr-2" /> Edit Fields
+                      </Button>
+                      <Button 
+                        onClick={handleSubmit} 
+                        disabled={loading}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-8"
+                      >
+                         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <PlusCircle className="w-4 h-4 mr-2" />}
+                         {editingId ? 'Update Agreement' : 'Finalize & Create'}
+                      </Button>
+                  </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Digital Paper Preview */}
+                  <div className="lg:col-span-2 order-2 lg:order-1">
+                      <Card className="shadow-2xl border-slate-200 overflow-hidden bg-white">
+                          <div className="h-2 bg-indigo-600 w-full" />
+                          <div className="p-8 sm:p-12">
+                              <ContractDisplay contract={previewContract} />
+                          </div>
+                          <div className="bg-slate-50 p-6 border-t border-slate-100 text-center text-[10px] text-slate-400 uppercase tracking-widest">
+                              This is a live preview of your generated agreement
+                          </div>
+                      </Card>
+                  </div>
+
+                  {/* Terms Editor */}
+                  <div className="lg:col-span-1 order-1 lg:order-2 space-y-4">
+                      <Card className="sticky top-24 border-indigo-100 shadow-sm">
+                          <CardHeader className="pb-3">
+                              <CardTitle className="text-lg flex items-center gap-2">
+                                  <FileText className="w-5 h-5 text-indigo-600" />
+                                  Edit Legal Terms
+                              </CardTitle>
+                              <CardDescription>
+                                  Modify the boilerplate text if needed.
+                              </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                              <Textarea 
+                                value={editableLegalText}
+                                onChange={(e) => setEditableLegalText(e.target.value)}
+                                className="min-h-[500px] text-sm font-sans leading-relaxed custom-scrollbar focus-visible:ring-indigo-500"
+                              />
+                          </CardContent>
+                          <CardFooter className="bg-indigo-50/50 flex justify-between py-4">
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="text-xs text-indigo-600"
+                                    onClick={() => setEditableLegalText(templateDef.legalText)}
+                                >
+                                    Reset to Default
+                                </Button>
+                                <div className="text-[10px] text-slate-400 flex items-center">
+                                    <Check className="w-3 h-3 mr-1 text-emerald-500" /> Auto-saving in preview
+                                </div>
+                          </CardFooter>
+                      </Card>
+                  </div>
+              </div>
+          </div>
+      )
+  }
+
+  return null // Should not reach here
 }

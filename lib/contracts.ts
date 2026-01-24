@@ -25,7 +25,8 @@ export async function createContract(
   creatorName: string,
   creatorEmail: string,
   template: TemplateType,
-  meta: ContractMeta
+  meta: ContractMeta,
+  legalText?: string
 ): Promise<Contract> {
   const contractId = generateShortId(6);
   const now = new Date();
@@ -43,6 +44,7 @@ export async function createContract(
     auditTrail: null,
     createdAt: now,
     expiresAt: getExpirationDate(now),
+    legalText,
   };
 
   // Convert dates to Firestore Timestamps
@@ -235,6 +237,25 @@ export async function unarchiveContract(contractId: string): Promise<void> {
     console.log(`[contracts.ts] Contract ${contractId} unarchived`);
   } catch (e) {
     console.error(`[contracts.ts] Failed to unarchive contract ${contractId}`, e);
+    throw e;
+  }
+}
+// Update a contract's metadata or legal text
+export async function updateContractFields(
+  contractId: string,
+  meta: ContractMeta,
+  legalText: string
+): Promise<void> {
+  try {
+    const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
+    await updateDoc(docRef, {
+      meta,
+      legalText,
+      updatedAt: Timestamp.now(),
+    });
+    console.log(`[contracts.ts] Contract ${contractId} updated successfully`);
+  } catch (e) {
+    console.error(`[contracts.ts] Failed to update contract ${contractId}`, e);
     throw e;
   }
 }

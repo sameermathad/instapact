@@ -81,15 +81,12 @@ export default function DashboardLayout({
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
               <Logo />
             </Link>
           </div>
             <div className="flex items-center space-x-4 sm:space-x-6">
-               {/* Upgrade Button - Persistent "Shill" */}
-               {!loading && user && (
-                 <UpgradeButtonShim />
-               )}
+
 
                <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -164,21 +161,4 @@ export default function DashboardLayout({
   )
 }
 
-function UpgradeButtonShim() {
-  const { plan, loading } = useUsageLimit()
-  const { user } = useAuth()
-  
-  if (loading || !plan || plan === 'agency') return null
 
-  return (
-    <Link href="/dashboard/profile?tab=plans">
-      <Button 
-        size="sm" 
-        className="hidden sm:inline-flex bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white border-0 shadow-md"
-      >
-        <Sparkles className="w-4 h-4 mr-2" />
-        Upgrade Plan
-      </Button>
-    </Link>
-  )
-}

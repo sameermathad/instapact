@@ -8,11 +8,13 @@ import { SignatureForm } from '@/components/signing/signature-form';
 import { SuccessAnimation } from '@/components/signing/success-animation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, Download, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Loader2, Copy, Share2, Eye, Download, CheckCircle, AlertCircle, FileText, ArrowLeft, LayoutDashboard, Edit3, Info } from 'lucide-react';
 import { downloadContractPDF } from '@/lib/pdf';
-import { getClientIp, formatDate } from '@/lib/utils';
+import { getClientIp, formatDate, cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
+import { useAuth } from '@/lib/auth-context';
+import { Badge } from '@/components/ui/badge';
 
 // Mock data for development if contract not found (remove in prod)
 const MOCK_CONTRACT: Contract = {
@@ -38,7 +40,9 @@ const MOCK_CONTRACT: Contract = {
 export default function SigningPage({ params }: { params: Promise<{ id: string }> }) {
   // Unwrap params using React.use()
   const resolvedParams = use(params);
+  const { user: authUser } = useAuth();
   const [contract, setContract] = useState<Contract | null>(null);
+  const isCreator = !!authUser && authUser.uid === contract?.creatorId;
   const [loading, setLoading] = useState(true);
   const [signing, setSigning] = useState(false);
   const [signed, setSigned] = useState(false);
@@ -159,19 +163,40 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
       {/* Texture Overlay (Optional, for realism) */}
       <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] mix-blend-multiply"></div>
 
-      {/* Glass Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-md border-b border-slate-200/60 shadow-sm transition-all duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
+          <Link href={authUser ? "/dashboard" : "/"} className="hover:opacity-80 transition-opacity">
              <Logo showBeta={false} />
           </Link>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-4">
+             {isCreator && (
+               <div className="hidden sm:flex items-center gap-2">
+                 <Link href={`/dashboard/new?edit=${contract.id}`}>
+                    <Button variant="ghost" size="sm" className="text-slate-600 hover:text-indigo-600">
+                       <Edit3 className="w-4 h-4 mr-1.5" />
+                       Edit
+                    </Button>
+                 </Link>
+                 <Link href="/dashboard">
+                    <Button variant="ghost" size="sm" className="text-slate-600">
+                       <LayoutDashboard className="w-4 h-4 mr-1.5" />
+                       Dashboard
+                    </Button>
+                 </Link>
+               </div>
+             )}
              {!signed && (
-                <div className="hidden sm:flex items-center text-sm font-medium text-slate-500">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 mr-2 animate-pulse"></span>
-                  Pending Signature
-                </div>
+                <Badge variant="secondary" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                  {isCreator ? 'WAITING FOR CLIENT' : 'PENDING'}
+                </Badge>
+             )}
+             {signed && (
+                <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1 flex items-center gap-2">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  SIGNED
+                </Badge>
              )}
           </div>
         </div>
@@ -218,16 +243,62 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
 
-          {/* Sticky Signature Action (Mobile friendly) */}
+          {/* Signature Action */}
           {!signed && (
-            <div className="sticky bottom-6 z-30 mx-auto max-w-md">
-               <div className="bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl p-1.5 ring-1 ring-black/5">
-                 <SignatureForm 
-                   onSubmit={handleSign} 
-                   isSubmitting={signing} 
-                   defaultEmail={contract.meta.clientEmail}
-                   defaultName={contract.meta.clientName}
-                 />
+            <div className="w-full relative z-20">
+               <div className="bg-white rounded-md shadow-2xl overflow-hidden border border-slate-200/60 transition-all duration-300">
+                  {/* Top Brand Bar for Signature Card */}
+                  <div className="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-600" />
+                  
+                  {isCreator && (
+                    <div className="bg-indigo-600 text-white text-[10px] font-black py-2 px-4 flex items-center justify-center gap-2 uppercase tracking-[0.1em] border-b border-indigo-700/50">
+                       <Info className="w-3.5 h-3.5" />
+                       PREVIEW MODE: WHAT YOUR CLIENT SEES
+                    </div>
+                  )}
+                  
+                  <SignatureForm 
+                    onSubmit={handleSign} 
+                    isSubmitting={signing} 
+                    defaultEmail={contract.meta.clientEmail}
+                    defaultName={contract.meta.clientName}
+                  />
+               </div>
+            </div>
+          )}
+
+          {isCreator && !signed && (
+            <div className="mx-auto max-w-[850px] w-full">
+               <div className="bg-white/95 backdrop-blur-xl border border-slate-200 shadow-xl rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+                      <Share2 className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">Share Link</h4>
+                      <p className="text-xs text-slate-500">Agreement ready to be signed.</p>
+                    </div>
+                  </div>
+                  <div className="flex w-full sm:w-auto gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast.success("Link copied to clipboard!");
+                      }}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy Link
+                    </Button>
+                    <Link href={`/dashboard/new?edit=${contract.id}`} className="flex-1 sm:flex-none">
+                      <Button size="sm" className="w-full bg-indigo-600 hover:bg-indigo-700">
+                        <Edit3 className="w-4 h-4 mr-2" />
+                        Edit Agreement
+                      </Button>
+                    </Link>
+                  </div>
                </div>
             </div>
           )}

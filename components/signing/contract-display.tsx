@@ -1,9 +1,9 @@
 import { Contract } from '@/types';
-import { formatCurrency } from '@/lib/templates';
+import { formatCurrency, getTemplate } from '@/lib/templates';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { FileText, Shield, Handshake, Calendar, DollarSign, User, Mail } from 'lucide-react';
+import { FileText, Shield, Handshake, Calendar, DollarSign, User, Mail, AlertCircle } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface ContractDisplayProps {
@@ -45,8 +45,9 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
                  Signed & Verified
               </Badge>
             ) : (
-              <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-slate-200 px-3 py-1 text-sm">
-                 waiting for signature
+              <Badge variant="secondary" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1 flex items-center gap-2">
+                 <AlertCircle className="w-3.5 h-3.5" />
+                 PENDING
               </Badge>
             )}
           </div>
@@ -179,23 +180,8 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
             </AccordionTrigger>
             <AccordionContent>
               <div className="px-6 pb-6 pt-2 border-t border-slate-200">
-                <div className="prose prose-sm prose-slate max-w-none text-slate-500 font-serif h-80 overflow-y-auto pr-2 custom-scrollbar">
-                  <p className="uppercase text-xs font-bold tracking-widest text-slate-400 mb-4 text-center">Standard Terms & Conditions</p>
-                  <p>
-                    1. <strong>Confidentiality.</strong> The parties agree to keep all terms of this agreement and any shared proprietary information confidential...
-                  </p>
-                  <p>
-                    2. <strong>Intellectual Property.</strong> Unless otherwise stated, all deliverables remain the property of the Creator until full payment is received...
-                  </p>
-                  <p>
-                    3. <strong>Payment Terms.</strong> Payments are non-refundable. Late payments may incur a 5% late fee...
-                  </p>
-                  <p className="italic bg-yellow-50 p-2 text-yellow-700 border border-yellow-200 rounded">
-                    ... [Truncated for UI Demo] ...
-                  </p>
-                  <p>
-                    By signing this document, you acknowledge that you have read, understood, and agreed to be bound by these standard terms.
-                  </p>
+                <div className="prose prose-sm prose-slate max-w-none text-slate-600 font-sans whitespace-pre-wrap leading-relaxed h-[400px] overflow-y-auto pr-4 custom-scrollbar bg-white p-6 rounded-md shadow-inner border border-slate-100">
+                  {contract.legalText || getTemplate(contract.template).legalText}
                 </div>
               </div>
             </AccordionContent>

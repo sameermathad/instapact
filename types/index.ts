@@ -41,6 +41,7 @@ export interface Contract {
   createdAt: Date;
   expiresAt: Date;
   archived?: boolean;
+  legalText?: string;
 }
 
 export interface FieldDefinition {

@@ -38,30 +38,34 @@ export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultNam
   };
 
   return (
-    <Card className="shadow-lg border-indigo-100 ring-4 ring-indigo-50/50">
-      <CardHeader className="bg-slate-50 border-b border-slate-100">
-        <CardTitle className="flex items-center text-lg">
-          <PenTool className="w-5 h-5 mr-2 text-indigo-600" />
-          Sign this Agreement
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="signer-name">Full Name</Label>
+    <div className="bg-white overflow-hidden">
+      <div className="p-8 sm:p-12 md:p-16">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+            <PenTool className="w-5 h-5 text-indigo-600" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-slate-900">Sign this Agreement</h3>
+            <p className="text-sm text-slate-500">Provide your digital signature to accept this contract.</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="signer-name" className="text-xs font-bold uppercase tracking-wider text-slate-500">Full Name</Label>
               <Input
                 id="signer-name"
                 placeholder="Ex. Alice Johnson"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={isSubmitting}
-                className="bg-white"
+                className="h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
               />
             </div>
             
-            <div className="grid gap-2">
-              <Label htmlFor="signer-email">Email Address</Label>
+            <div className="space-y-2">
+              <Label htmlFor="signer-email" className="text-xs font-bold uppercase tracking-wider text-slate-500">Email Address</Label>
               <Input
                 id="signer-email"
                 type="email"
@@ -69,25 +73,25 @@ export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultNam
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSubmitting}
-                 className="bg-white"
+                className="h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm"
               />
             </div>
           </div>
 
-          <div className="flex items-start space-x-3 p-4 bg-indigo-50/50 rounded-md border border-indigo-100">
+          <div className="flex items-start space-x-4 p-5 bg-slate-50 rounded-xl border border-slate-100 group transition-colors hover:bg-indigo-50/30">
             <Checkbox 
               id="consent" 
               checked={consent}
               onCheckedChange={(checked) => setConsent(checked as boolean)}
               disabled={isSubmitting}
-              className="mt-1"
+              className="mt-1 border-slate-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
             />
             <div className="grid gap-1.5 leading-none">
               <Label
                 htmlFor="consent"
-                className="text-sm font-medium leading-normal peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                className="text-sm font-semibold text-slate-700 leading-normal cursor-pointer"
               >
-                I agree to the terms and conditions defined in this document and accept the use of this digital signature as binding.
+                I agree to the terms and conditions defined in this document and accept the use of this electronic signature as binding.
               </Label>
               <p className="text-xs text-slate-500">
                 Your IP address and device information will be recorded securely.
@@ -97,20 +101,20 @@ export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultNam
 
           <Button 
             type="submit" 
-            className="w-full h-14 text-lg font-semibold shadow-lg shadow-indigo-200"
+            className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]"
             disabled={isSubmitting || !consent}
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Signing...
+                Validating Signature...
               </>
             ) : (
-              'APPROVE & SIGN'
+              'APPROVE & SIGN AGREEMENT'
             )}
           </Button>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

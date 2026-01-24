@@ -75,21 +75,11 @@ export default function DashboardPage() {
                     : "shadow-indigo-100 bg-indigo-600 hover:bg-indigo-700"
                 )}
               >
-                {isAtLimit ? (
-                  <>Limit Reached</>
-                ) : (
-                  <><Plus className="w-5 h-5 mr-2" /> Create New</>
-                )}
+                <Plus className="w-5 h-5 mr-2" /> Create New
               </Button>
             </Link>
           )}
-          {isAtLimit && (
-            <Link href="/dashboard/profile?tab=plans">
-              <Button variant="outline" className="w-full sm:w-auto border-indigo-200 text-indigo-600 hover:bg-indigo-50">
-                <Sparkles className="w-4 h-4 mr-2" /> Upgrade
-              </Button>
-            </Link>
-          )}
+
         </div>
       </div>
 
