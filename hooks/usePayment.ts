@@ -72,14 +72,30 @@ export function usePayment(): UsePaymentReturn {
     setProcessing(true)
     toast.loading("Initializing payment...", { id: 'payment-process' })
 
-    if (!window.Razorpay) {
-        toast.error("Payment SDK not loaded. Please check your internet connection.", { id: 'payment-process' });
-        setProcessing(false);
-        return false;
-    }
+    const loadSDK = () => {
+        return new Promise((resolve) => {
+            if (window.Razorpay) {
+                resolve(true);
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
 
     return new Promise(async (resolve) => {
         try {
+            if (!window.Razorpay) {
+                const loaded = await loadSDK();
+                if (!loaded) {
+                    toast.error("Payment SDK failed to load. Please disable ad-blockers.", { id: 'payment-process' });
+                    setProcessing(false);
+                    return resolve(false);
+                }
+            }
             const planConfig = PLANS[itemId as PlanType];
             const useSubscription = type === 'plan_upgrade' && planConfig?.razorpayPlanId;
 
