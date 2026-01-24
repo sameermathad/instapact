@@ -105,6 +105,33 @@ export default function RootLayout({
           `}
         </Script>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="beforeInteractive" />
+        
+        {/* Structured Data for SEO / GEO (Generative Experience Optimization) */}
+        <Script id="json-ld" type="application/ld+json" strategy="afterInteractive">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "InstaPact",
+            "operatingSystem": "Web",
+            "applicationCategory": "BusinessApplication",
+            "offers": {
+              "@type": "Offer",
+              "price": "399",
+              "priceCurrency": "INR"
+            },
+            "description": "Instant digital agreements for freelancers and agencies. Create and sign legally binding contracts in 30 seconds.",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "ratingCount": "120"
+            },
+            "author": {
+              "@type": "Organization",
+              "name": "InstaPact",
+              "url": "https://www.instapact.in"
+            }
+          })}
+        </Script>
       </body>
     </html>
   );

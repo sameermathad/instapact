@@ -1,0 +1,27 @@
+# InstaPact
+
+> Instant Digital Agreements for Freelancers & Agencies. Create and sign legally binding contracts in 30 seconds.
+
+## Description
+InstaPact is a legal-tech SaaS designed to help freelancers and small agencies finalize deals faster. It simplifies the contract lifecycle by offering pre-built templates, instant digital signatures, and watermark-free downloads. 
+
+## Key Features
+- **Speed**: Finalize agreements in under 30 seconds.
+- **Trust**: Standardized legal templates for common business needs.
+- **Watermark-Free**: Clean, professional PDFs on premium plans.
+- **Agency Tools**: Manage multiple agreements and high-volume signing.
+- **Digital Signatures**: Fully legally binding digital signatures.
+
+## Pricing
+- **Free**: 1 Agreement per month (with watermark).
+- **One-time**: ₹99 per document (Lifetime validity).
+- **Standard**: ₹399/month for 10 documents, custom branding.
+- **Agency**: ₹999/month for unlimited access.
+- *Save 20% on Annual billing.*
+
+## Contact & Links
+- Website: [https://www.instapact.in](https://www.instapact.in)
+- Support: admin@vybetech.in
+- Terms: [/terms](https://www.instapact.in/terms)
+- Privacy: [/privacy](https://www.instapact.in/privacy)
+- Blog: [/blog](https://www.instapact.in/blog)
