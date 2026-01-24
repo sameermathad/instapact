@@ -2,7 +2,7 @@
 
 export type TemplateType = 'SCOPE' | 'NDA' | 'DEAL';
 
-export type ContractStatus = 'pending' | 'signed' | 'expired';
+export type ContractStatus = 'pending' | 'signed' | 'expired' | 'revision_requested';
 
 export type Currency = 'USD' | 'INR';
 
@@ -16,7 +16,7 @@ export interface ContractMeta {
   originalProjectRef?: string;
   newDeliverables?: string;
   additionalFee?: number;
-  // Freelance Deal specific
+  documentTitle?: string;
   deliverablesList?: string[];
   paymentSchedule?: string;
 }
@@ -42,6 +42,7 @@ export interface Contract {
   expiresAt: Date;
   archived?: boolean;
   legalText?: string;
+  clientFeedback?: string;
 }
 
 export interface FieldDefinition {

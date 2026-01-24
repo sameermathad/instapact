@@ -193,7 +193,7 @@ export default function LandingPageVariant1() {
                     <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-6 text-emerald-600">
                        <DollarSign className="w-6 h-6" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">Freelance Deal</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">Freelance Service Agreement</h3>
                     <p className="text-slate-600">Lock in the deposit and deliverables before you start. Simple and effective.</p>
                  </div>
               </div>

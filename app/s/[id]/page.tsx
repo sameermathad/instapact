@@ -2,13 +2,15 @@
 
 import { useEffect, useState, use } from 'react';
 import { Contract } from '@/types';
-import { getContract, signContract } from '@/lib/contracts';
+import { getContract, signContract, requestContractRevision } from '@/lib/contracts';
+import { Textarea } from '@/components/ui/textarea';
+import { MessageSquare, Send } from 'lucide-react';
 import { ContractDisplay } from '@/components/signing/contract-display';
 import { SignatureForm } from '@/components/signing/signature-form';
 import { SuccessAnimation } from '@/components/signing/success-animation';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Loader2, Copy, Share2, Eye, Download, CheckCircle, AlertCircle, FileText, ArrowLeft, LayoutDashboard, Edit3, Info } from 'lucide-react';
+import { Loader2, Copy, Share2, Eye, Download, CheckCircle, AlertCircle, FileText, ArrowLeft, LayoutDashboard, Edit3, Info, PenTool } from 'lucide-react';
 import { downloadContractPDF } from '@/lib/pdf';
 import { getClientIp, formatDate, cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -45,7 +47,11 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
   const isCreator = !!authUser && authUser.uid === contract?.creatorId;
   const [loading, setLoading] = useState(true);
   const [signing, setSigning] = useState(false);
+  const [requestingRevision, setRequestingRevision] = useState(false);
+  const [revisionText, setRevisionText] = useState('');
+  const [showRevisionForm, setShowRevisionForm] = useState(false);
   const [signed, setSigned] = useState(false);
+  const [revisionRequested, setRevisionRequested] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,6 +62,9 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
           setContract(data);
           if (data.status === 'signed') {
             setSigned(true);
+          }
+          if (data.status === 'revision_requested') {
+            setRevisionRequested(true);
           }
         } else {
           // Fallback for demo/dev purposes if ID matches "demo"
@@ -125,6 +134,24 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
     }
   };
 
+  const handleRequestRevision = async () => {
+    if (!contract || !revisionText.trim()) return;
+    
+    setRequestingRevision(true);
+    try {
+      await requestContractRevision(contract.id, revisionText);
+      setRevisionRequested(true);
+      setContract({ ...contract, status: 'revision_requested', clientFeedback: revisionText });
+      setShowRevisionForm(false);
+      toast.success('Revision request sent to creator');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to send revision request');
+    } finally {
+      setRequestingRevision(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -172,12 +199,7 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
           <div className="flex items-center gap-2 sm:gap-4">
              {isCreator && (
                <div className="hidden sm:flex items-center gap-2">
-                 <Link href={`/dashboard/new?edit=${contract.id}`}>
-                    <Button variant="ghost" size="sm" className="text-slate-600 hover:text-indigo-600">
-                       <Edit3 className="w-4 h-4 mr-1.5" />
-                       Edit
-                    </Button>
-                 </Link>
+
                  <Link href="/dashboard">
                     <Button variant="ghost" size="sm" className="text-slate-600">
                        <LayoutDashboard className="w-4 h-4 mr-1.5" />
@@ -186,18 +208,7 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
                  </Link>
                </div>
              )}
-             {!signed && (
-                <Badge variant="secondary" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                  {isCreator ? 'WAITING FOR CLIENT' : 'PENDING'}
-                </Badge>
-             )}
-             {signed && (
-                <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1 flex items-center gap-2">
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  SIGNED
-                </Badge>
-             )}
+
           </div>
         </div>
       </header>
@@ -225,6 +236,46 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
             </div>
           )}
 
+          {/* Revision Requested Banner (for Creator) */}
+          {isCreator && revisionRequested && contract.clientFeedback && (
+            <div className="bg-red-50 border border-red-100 rounded-xl p-6 space-y-4 animate-in slide-in-from-top-4 fade-in duration-500 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <MessageSquare className="h-6 w-6 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-bold text-red-900">Client Requested Changes</h2>
+                  <p className="text-red-700 text-sm italic mt-1 bg-white/50 p-4 rounded-lg border border-red-50">
+                    "{contract.clientFeedback}"
+                  </p>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <Link href={`/dashboard/new?edit=${contract.id}`}>
+                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Edit3 className="w-4 h-4 mr-2" />
+                    Edit & Resubmit
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Revision Confirmation (for Client) */}
+          {!isCreator && revisionRequested && (
+             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 flex items-center gap-4 text-center sm:text-left animate-in slide-in-from-top-4 fade-in duration-500 shadow-sm">
+                <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <Send className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-bold text-indigo-900">Changes Sent to Creator</h2>
+                  <p className="text-indigo-700 text-sm">
+                    You've requested some changes. The creator has been notified and will update the agreement shortly.
+                  </p>
+                </div>
+             </div>
+          )}
+
           {/* Electronic Paper Container */}
           <div className="bg-white rounded-md shadow-2xl overflow-hidden border border-slate-200/60 min-h-[1000px] relative">
             {/* Top Brand Bar */}
@@ -244,26 +295,56 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
           </div>
 
           {/* Signature Action */}
-          {!signed && (
-            <div className="w-full relative z-20">
-               <div className="bg-white rounded-md shadow-2xl overflow-hidden border border-slate-200/60 transition-all duration-300">
-                  {/* Top Brand Bar for Signature Card */}
-                  <div className="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-600" />
-                  
-                  {isCreator && (
-                    <div className="bg-indigo-600 text-white text-[10px] font-black py-2 px-4 flex items-center justify-center gap-2 uppercase tracking-[0.1em] border-b border-indigo-700/50">
-                       <Info className="w-3.5 h-3.5" />
-                       PREVIEW MODE: WHAT YOUR CLIENT SEES
+          {!signed && !revisionRequested && !isCreator && (
+            <div className="w-full relative z-20 space-y-6">
+                {!showRevisionForm && (
+                  <div className="bg-white rounded-md shadow-2xl overflow-hidden border border-slate-200/60 transition-all duration-300">
+                     {/* Top Brand Bar for Signature Card */}
+                     <div className="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-600" />
+                     
+                     <SignatureForm 
+                       onSubmit={handleSign} 
+                       isSubmitting={signing} 
+                       defaultEmail={contract.meta.clientEmail}
+                       defaultName={contract.meta.clientName}
+                       onRevisionRequest={() => setShowRevisionForm(true)}
+                     />
+                  </div>
+                )}
+
+               {/* Request Changes (Client) */}
+
+
+               {showRevisionForm && (
+                 <div className="bg-white rounded-md shadow-xl overflow-hidden border border-slate-200 p-8 sm:p-12 animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-red-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900">Suggest Changes</h3>
                     </div>
-                  )}
-                  
-                  <SignatureForm 
-                    onSubmit={handleSign} 
-                    isSubmitting={signing} 
-                    defaultEmail={contract.meta.clientEmail}
-                    defaultName={contract.meta.clientName}
-                  />
-               </div>
+                    <p className="text-sm text-slate-500 mb-4">
+                      Let the creator know what needs to be changed. They will be notified to update the agreement.
+                    </p>
+                    <Textarea 
+                      placeholder="e.g. Please change the additional fee to $1,200 or add 2 more revisions to the scope."
+                      value={revisionText}
+                      onChange={(e) => setRevisionText(e.target.value)}
+                      className="min-h-[120px] mb-6 border-slate-200 focus:border-red-500 focus:ring-red-500"
+                    />
+                    <div className="flex justify-end gap-3">
+                      <Button variant="ghost" onClick={() => setShowRevisionForm(false)}>Cancel</Button>
+                      <Button 
+                        onClick={handleRequestRevision}
+                        disabled={requestingRevision || !revisionText.trim()}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        {requestingRevision ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
+                        Send Request
+                      </Button>
+                    </div>
+                 </div>
+               )}
             </div>
           )}
 
@@ -280,6 +361,17 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
                     </div>
                   </div>
                   <div className="flex w-full sm:w-auto gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => {
+                        downloadContractPDF(contract, true);
+                      }}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Preview PDF
+                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm"

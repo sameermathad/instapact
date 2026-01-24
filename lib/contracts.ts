@@ -240,6 +240,25 @@ export async function unarchiveContract(contractId: string): Promise<void> {
     throw e;
   }
 }
+// Request a revision (Client Action)
+export async function requestContractRevision(
+  contractId: string,
+  clientFeedback: string
+): Promise<void> {
+  try {
+    const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
+    await updateDoc(docRef, {
+      status: 'revision_requested',
+      clientFeedback,
+      updatedAt: Timestamp.now(),
+    });
+    console.log(`[contracts.ts] Revision requested for contract ${contractId}`);
+  } catch (e) {
+    console.error(`[contracts.ts] Failed to request revision for ${contractId}`, e);
+    throw e;
+  }
+}
+
 // Update a contract's metadata or legal text
 export async function updateContractFields(
   contractId: string,
@@ -251,6 +270,8 @@ export async function updateContractFields(
     await updateDoc(docRef, {
       meta,
       legalText,
+      status: 'pending', // Reset status when creator updates
+      clientFeedback: null, // Clear feedback
       updatedAt: Timestamp.now(),
     });
     console.log(`[contracts.ts] Contract ${contractId} updated successfully`);

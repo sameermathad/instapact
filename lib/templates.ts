@@ -9,6 +9,13 @@ export const TEMPLATES: Record<TemplateType, ContractTemplate> = {
     icon: 'FileEdit',
     fields: [
       {
+        name: 'documentTitle',
+        label: 'Agreement Title',
+        type: 'text',
+        placeholder: 'e.g., Scope Change Agreement',
+        required: true,
+      },
+      {
         name: 'clientName',
         label: 'Client Name',
         type: 'text',
@@ -90,6 +97,13 @@ This Amendment shall be governed by the laws applicable to the original agreemen
     icon: 'Shield',
     fields: [
       {
+        name: 'documentTitle',
+        label: 'Agreement Title',
+        type: 'text',
+        placeholder: 'e.g., Non-Disclosure Agreement',
+        required: true,
+      },
+      {
         name: 'clientName',
         label: 'Client/Company Name',
         type: 'text',
@@ -162,10 +176,17 @@ This Agreement shall be governed by applicable laws.`,
 
   DEAL: {
     id: 'DEAL',
-    name: 'Freelance Deal',
+    name: 'Freelance Service Agreement',
     description: 'Complete freelance project agreement with deliverables and payment',
     icon: 'Handshake',
     fields: [
+      {
+        name: 'documentTitle',
+        label: 'Agreement Title',
+        type: 'text',
+        placeholder: 'e.g., Freelance Service Agreement',
+        required: true,
+      },
       {
         name: 'clientName',
         label: 'Client Name',

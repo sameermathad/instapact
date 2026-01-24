@@ -20,7 +20,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
                <li><Link href="/dashboard/new?type=scope" className="hover:text-white transition-colors">Scope Change</Link></li>
                <li><Link href="/dashboard/new?type=nda" className="hover:text-white transition-colors">Instant NDA</Link></li>
-               <li><Link href="/dashboard/new?type=deal" className="hover:text-white transition-colors">Freelance Deal</Link></li>
+               <li><Link href="/dashboard/new?type=deal" className="hover:text-white transition-colors">Freelance Service Agreement</Link></li>
                <li><Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link></li>
             </ul>
           </div>

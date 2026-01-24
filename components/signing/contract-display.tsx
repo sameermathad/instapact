@@ -31,26 +31,14 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
               ID: {contract.id.toUpperCase()}
             </Badge>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
-              {getTemplateLabel()}
+              {contract.meta.documentTitle || getTemplateLabel()}
             </h1>
             <p className="text-slate-500 font-medium">
               Created on {formatDate(contract.createdAt)}
             </p>
           </div>
           
-          <div className="hidden sm:block">
-            {contract.status === 'signed' ? (
-              <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200 px-3 py-1 text-sm">
-                 <Shield className="w-3.5 h-3.5 mr-1.5 inline-block" />
-                 Signed & Verified
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="bg-amber-50 text-amber-700 border-amber-200 px-3 py-1 flex items-center gap-2">
-                 <AlertCircle className="w-3.5 h-3.5" />
-                 PENDING
-              </Badge>
-            )}
-          </div>
+
         </div>
       </div>
 

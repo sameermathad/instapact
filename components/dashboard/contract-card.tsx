@@ -13,7 +13,9 @@ import {
   Shield, 
   Handshake,
   CheckCircle2,
-  Clock
+  Clock,
+  MessageSquare,
+  AlertCircle
 } from "lucide-react"
 import { 
   DropdownMenu, 
@@ -25,6 +27,8 @@ import { formatDate, getSigningUrl, copyToClipboard } from "@/lib/utils"
 import { toast } from "sonner"
 import { downloadContractPDF } from "@/lib/pdf"
 import { deleteContract, archiveContract, unarchiveContract } from "@/lib/contracts"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Trash2, Archive, RotateCcw } from "lucide-react"
 import {
   AlertDialog,
@@ -57,8 +61,14 @@ export function ContractCard({ contract }: ContractCardProps) {
   const statusVariant = {
     pending: "secondary",
     signed: "success",
-    expired: "destructive"
+    expired: "destructive",
+    revision_requested: "warning"
   } as const;
+
+  const getStatusLabel = (status: string) => {
+    if (status === 'revision_requested') return 'REVISION REQUESTED';
+    return status.toUpperCase();
+  };
 
   const handleCopyLink = async () => {
     const url = getSigningUrl(contract.id);
@@ -109,41 +119,55 @@ export function ContractCard({ contract }: ContractCardProps) {
     }
   };
 
-  return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-indigo-50 rounded-lg">
-            {getIcon()}
+   return (
+    <Card className="hover:shadow-lg transition-all duration-200 group relative hover:scale-[1.01] active:scale-[0.99] cursor-pointer ring-offset-background focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
+      <Link href={`/s/${contract.id}`} className="block">
+        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-indigo-50 group-hover:bg-indigo-100 transition-colors rounded-lg">
+              {getIcon()}
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 leading-none mb-1 group-hover:text-indigo-600 transition-colors">
+                {contract.meta.clientName}
+              </h3>
+              <p className="text-sm text-slate-500">
+                {contract.template === 'SCOPE' && 'Scope Change'}
+                {contract.template === 'NDA' && 'NDA'}
+                {contract.template === 'DEAL' && 'Freelance Service Agreement'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-slate-900 leading-none mb-1">
-              {contract.meta.clientName}
-            </h3>
-            <p className="text-sm text-slate-500">
-              {contract.template === 'SCOPE' && 'Scope Change'}
-              {contract.template === 'NDA' && 'NDA'}
-              {contract.template === 'DEAL' && 'Freelance Deal'}
-            </p>
+          <Badge variant={statusVariant[contract.status as keyof typeof statusVariant] || 'secondary'}>
+            {getStatusLabel(contract.status)}
+          </Badge>
+        </CardHeader>
+        
+        {contract.status === 'revision_requested' && contract.clientFeedback && (
+          <div className="mx-4 mt-2 p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-2">
+            <MessageSquare className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 overflow-hidden">
+              <p className="text-[10px] font-black text-red-800 uppercase tracking-widest mb-1">Client Feedback</p>
+              <p className="text-xs text-red-700 italic line-clamp-2 leading-relaxed">
+                "{contract.clientFeedback}"
+              </p>
+            </div>
           </div>
-        </div>
-        <Badge variant={statusVariant[contract.status]}>
-          {contract.status.toUpperCase()}
-        </Badge>
-      </CardHeader>
-      
-      <CardContent className="pt-4 pb-2">
-        <div className="text-sm text-slate-600 space-y-1">
-           {contract.meta.amount && (
-             <p className="font-medium text-slate-900">
-               {new Intl.NumberFormat('en-US', { style: 'currency', currency: contract.meta.currency }).format(contract.meta.amount)}
+        )}
+        
+        <CardContent className="pt-4 pb-2">
+          <div className="text-sm text-slate-600 space-y-1">
+             {contract.meta.amount && (
+               <p className="font-bold text-slate-900">
+                 {new Intl.NumberFormat('en-US', { style: 'currency', currency: contract.meta.currency }).format(contract.meta.amount)}
+               </p>
+             )}
+             <p className="line-clamp-2 text-xs text-slate-500">
+               {contract.meta.description || contract.meta.originalProjectRef || contract.meta.newDeliverables || "No description"}
              </p>
-           )}
-           <p className="line-clamp-2 text-xs text-slate-500">
-             {contract.meta.description || contract.meta.originalProjectRef || contract.meta.newDeliverables || "No description"}
-           </p>
-        </div>
-      </CardContent>
+          </div>
+        </CardContent>
+      </Link>
 
       <CardFooter className="pt-2 border-t border-slate-50 bg-slate-50/50 mt-2 flex justify-between items-center text-xs text-slate-400">
         <div className="flex items-center">
@@ -152,16 +176,16 @@ export function ContractCard({ contract }: ContractCardProps) {
         </div>
         
         <div className="flex space-x-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopyLink} title="Copy Link">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleCopyLink(); }} title="Copy Link">
             <Copy className="h-4 w-4 text-slate-500" />
           </Button>
           
           {contract.status === 'signed' ? (
-             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleDownload} title="Download Proof">
+             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleDownload(); }} title="Download Proof">
                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
              </Button>
           ) : (
-             <Button variant="ghost" size="icon" className="h-8 w-8" asChild title="View Signing Page">
+             <Button variant="ghost" size="icon" className="h-8 w-8" asChild title="View Signing Page" onClick={(e) => e.stopPropagation()}>
                <a href={`/s/${contract.id}`} target="_blank" rel="noopener noreferrer">
                  <ExternalLink className="h-4 w-4 text-slate-500" />
                </a>
@@ -169,7 +193,7 @@ export function ContractCard({ contract }: ContractCardProps) {
           )}
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               <Button variant="ghost" size="icon" className="h-8 w-8">
                 <MoreHorizontal className="h-4 w-4 text-slate-500" />
               </Button>

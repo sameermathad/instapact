@@ -202,6 +202,112 @@ export default function Home() {
            </div>
         </section>
 
+         {/* New: Template Showcase Section */}
+        <section className="py-24 bg-white overflow-hidden relative border-b border-slate-100">
+           <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center mb-16">
+                 <motion.h2 {...fadeInUp} className="text-indigo-600 font-bold tracking-wide uppercase mb-3 text-sm">Template Library</motion.h2>
+                 <motion.h3 {...fadeInUp} className="text-5xl font-black text-slate-900 tracking-tight">Iron-Clad Templates. <br/>Zero Friction.</motion.h3>
+                 <motion.p {...fadeInUp} className="mt-4 text-xl text-slate-500 max-w-2xl mx-auto font-light">
+                    Professional, simple, and legally sound documents designed for the speed of modern business.
+                 </motion.p>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-16 items-center">
+                 <motion.div 
+                   initial={{ opacity: 0, x: -30 }}
+                   whileInView={{ opacity: 1, x: 0 }}
+                   viewport={{ once: true }}
+                   className="space-y-6"
+                 >
+                   {[
+                     { 
+                       title: "Scope Change Agreement", 
+                       desc: "Project creeping? Send this to lock in extra deliverables as paid work instantly.", 
+                       icon: <Zap className="w-5 h-5 text-indigo-600" /> 
+                     },
+                     { 
+                       title: "Mutual Non-Disclosure", 
+                       desc: "Simple, balanced NDA for discovery calls and initial partnership discussions.", 
+                       icon: <Lock className="w-5 h-5 text-indigo-600" /> 
+                     },
+                     { 
+                       title: "The Simple Deal Memo", 
+                       desc: "A simplified client agreement covering fees, deposits, and ownership.", 
+                       icon: <DollarSign className="w-5 h-5 text-indigo-600" /> 
+                     }
+                   ].map((item, i) => (
+                     <div key={i} className="flex gap-5 p-7 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-xl hover:border-indigo-100 transition-all duration-300 group">
+                       <div className="flex-shrink-0 w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                         {item.icon}
+                       </div>
+                       <div>
+                         <h4 className="font-bold text-slate-900 text-lg mb-1">{item.title}</h4>
+                         <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
+                       </div>
+                     </div>
+                   ))}
+                 </motion.div>
+
+                 <motion.div 
+                   initial={{ opacity: 0, scale: 0.95 }}
+                   whileInView={{ opacity: 1, scale: 1 }}
+                   viewport={{ once: true }}
+                   className="relative"
+                 >
+                   <div className="absolute -inset-10 bg-indigo-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+                   <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transform lg:rotate-2 hover:rotate-0 transition-transform duration-700">
+                      <div className="relative p-1.5 bg-slate-50/50">
+                         <div className="bg-white rounded-xl overflow-hidden shadow-inner border border-slate-200/50">
+                           <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600" />
+                           <div className="p-10 space-y-8">
+                             <div className="flex justify-between items-start">
+                               <div className="space-y-3">
+                                 <div className="h-3 w-24 bg-slate-100 rounded animate-pulse" />
+                                 <div className="h-8 w-64 bg-slate-200 rounded" />
+                               </div>
+                               <div className="h-8 px-4 bg-emerald-50 border border-emerald-100 rounded-full flex items-center">
+                                  <div className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
+                                  <div className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Signed & Verified</div>
+                               </div>
+                             </div>
+                             <div className="space-y-4">
+                               <div className="h-3.5 w-full bg-slate-50 rounded" />
+                               <div className="h-3.5 w-full bg-slate-50 rounded" />
+                               <div className="h-3.5 w-full bg-slate-50 rounded" />
+                               <div className="h-3.5 w-4/5 bg-slate-50 rounded" />
+                             </div>
+                             <div className="pt-8 border-t border-slate-100 flex justify-between items-center">
+                               <div className="space-y-2">
+                                 <div className="h-3 w-20 bg-slate-50 rounded" />
+                                 <div className="text-xl font-signature font-light text-slate-400 tracking-tighter italic">Johnathan Client</div>
+                               </div>
+                               <div className="h-12 px-6 bg-slate-900 rounded-lg flex items-center justify-center text-white text-xs font-bold uppercase tracking-widest">
+                                  PDF Generated
+                               </div>
+                             </div>
+                           </div>
+                         </div>
+                      </div>
+                      
+                      {/* Floating Feature Tags */}
+                      <div className="absolute top-1/2 -right-4 bg-white shadow-2xl border border-indigo-100 p-4 rounded-xl rotate-3 animate-bounce-slow">
+                         <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white">
+                               <FileCheck className="w-5 h-5" />
+                            </div>
+                            <div>
+                               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Legal Grade</div>
+                               <div className="text-sm font-bold text-slate-900">Audit Trail Active</div>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+                 </motion.div>
+              </div>
+           </div>
+        </section>
+
         {/* 2. Pain Section - The "Quick Favor" Trap */}
         <section className="py-24 bg-slate-50 overflow-hidden">
            <div className="max-w-7xl mx-auto px-4">
@@ -263,6 +369,8 @@ export default function Home() {
               </div>
            </div>
         </section>
+
+       
 
         {/* 3. How It Works - 30 Seconds to Signed */}
         <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
@@ -405,7 +513,7 @@ export default function Home() {
                        <DollarSign className="w-6 h-6" />
                     </div>
                     
-                    <h3 className="text-xl font-bold text-white mb-3">Freelance Deal</h3>
+                    <h3 className="text-xl font-bold text-white mb-3">Freelance Service Agreement</h3>
                     <p className="text-slate-400 leading-relaxed mb-8 flex-1 text-sm">
                       Lock in deposits, deliverables, and deadlines before you start working. Simple.
                     </p>

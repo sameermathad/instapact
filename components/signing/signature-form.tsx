@@ -14,9 +14,10 @@ interface SignatureFormProps {
   isSubmitting: boolean;
   defaultEmail?: string;
   defaultName?: string;
+  onRevisionRequest?: () => void;
 }
 
-export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultName }: SignatureFormProps) {
+export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultName, onRevisionRequest }: SignatureFormProps) {
   const [name, setName] = useState(defaultName || '');
   const [email, setEmail] = useState(defaultEmail || '');
   const [consent, setConsent] = useState(false);
@@ -99,20 +100,34 @@ export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultNam
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]"
-            disabled={isSubmitting || !consent}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Validating Signature...
-              </>
-            ) : (
-              'APPROVE & SIGN AGREEMENT'
+          <div className="flex flex-col sm:flex-row gap-4">
+            {onRevisionRequest && (
+                <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={onRevisionRequest}
+                    className="flex-1 h-16 text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 hover:border-amber-300 font-bold transition-all"
+                    disabled={isSubmitting}
+                >
+                    REQUEST CHANGES
+                </Button>
             )}
-          </Button>
+
+            <Button 
+                type="submit" 
+                className="flex-[2] h-16 text-lg font-bold bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]"
+                disabled={isSubmitting || !consent}
+            >
+                {isSubmitting ? (
+                <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Validating Signature...
+                </>
+                ) : (
+                'APPROVE & SIGN'
+                )}
+            </Button>
+          </div>
         </form>
       </div>
     </div>
