@@ -18,9 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Settings, User as UserIcon, LayoutDashboard, CreditCard, HelpCircle, PlusCircle, Sparkles } from "lucide-react";
 import { useUsageLimit } from "@/hooks/useUsageLimit";
-import { usePayment } from "@/hooks/usePayment";
-import { useState } from "react";
-import { PaymentModal } from "@/components/payment-modal";
 import { getUserProfile } from "@/lib/user";
 import { Logo } from "@/components/logo";
 

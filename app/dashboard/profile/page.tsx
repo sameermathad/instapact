@@ -27,8 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { usePayment, PaymentType } from '@/hooks/usePayment'
-import { PaymentModal } from '@/components/payment-modal'
+import { usePayment } from '@/hooks/usePayment'
 import { PlanSelection } from '@/components/pricing/plan-selection'
 
 type SettingsTab = 'general' | 'legal' | 'branding' | 'payments' | 'plans' | 'billing' | 'notifications' | 'security'
@@ -44,7 +43,6 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>(tabParam || 'general')
   const { count, limit, plan, isAtLimit, credits, loading: usageLoading } = useUsageLimit()
   const { processPayment, processing: paymentProcessing } = usePayment()
-  const [paymentModal, setPaymentModal] = useState<{ open: boolean, type: PaymentType, itemId: string, amount: number, desc: string } | null>(null)
   
   useEffect(() => {
     if (tabParam && tabParam !== activeTab) {
@@ -528,15 +526,10 @@ export default function ProfilePage() {
                               size="sm"
                               variant="outline"
                               className="w-full mt-2 bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-                              onClick={() => setPaymentModal({ 
-                                open: true, 
-                                type: 'credit_purchase', 
-                                itemId: '1', 
-                                amount: 99, 
-                                desc: '1 Extra Document' 
-                              })}
+                              onClick={() => processPayment('credit_purchase', '1', 99)}
+                              disabled={paymentProcessing}
                             >
-                              Add 1 Document (₹99)
+                              {paymentProcessing ? "Starting..." : "Add 1 Document (₹99)"}
                             </Button>
                          </div>
                       </div>
@@ -666,19 +659,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {paymentModal && (
-        <PaymentModal 
-          isOpen={paymentModal.open}
-          onClose={() => setPaymentModal(null)}
-          onConfirm={async () => {
-             await processPayment(paymentModal.type, paymentModal.itemId, paymentModal.amount)
-          }}
-          amount={paymentModal.amount}
-          currency={profile.defaultCurrency || 'INR'}
-          provider={profile.defaultCurrency === 'USD' ? 'lemonsqueezy' : 'razorpay'}
-          itemDescription={paymentModal.desc}
-        />
-      )}
     </div>
   )
 }

@@ -18,7 +18,6 @@ interface PlanSelectionProps {
 export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSelectionProps) {
   const router = useRouter()
   const { processPayment, processing } = usePayment()
-  const [selectedPlan, setSelectedPlan] = useState<'single' | 'standard' | 'agency' | 'standard_annual' | 'agency_annual' | null>(null)
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
 
   const plans = [
@@ -130,7 +129,15 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
               </CardContent>
               <CardFooter>
                 <Button 
-                  onClick={() => setSelectedPlan(plan.id as any)} 
+                  onClick={async () => {
+                    const planDetails = plans.find(p => p.id === plan.id) || plans[0]
+                    const success = await processPayment('plan_upgrade', plan.id as any, planDetails.price)
+                    if (success) {
+                       if (onSuccess) onSuccess()
+                       else router.push(redirectPath)
+                    }
+                  }} 
+                  disabled={processing}
                   variant={plan.variant || 'default'}
                   className={cn(
                     "w-full font-bold h-11",
@@ -138,31 +145,12 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
                     plan.id.includes('agency') && "hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200"
                   )}
                 >
-                  {plan.buttonText}
+                  {processing ? "Starting..." : plan.buttonText}
                 </Button>
               </CardFooter>
             </Card>
           ))}
         </div>
-
-      {selectedPlan && (
-        <PaymentModal
-          isOpen={!!selectedPlan}
-          onClose={() => setSelectedPlan(null)}
-          onConfirm={async () => {
-             const planDetails = plans.find(p => p.id === selectedPlan) || plans[0]
-             const success = await processPayment('plan_upgrade', selectedPlan, planDetails.price)
-             if (success) {
-                if (onSuccess) onSuccess()
-                else router.push(redirectPath)
-             }
-          }}
-          amount={plans.find(p => p.id === selectedPlan)?.price || 0}
-          currency="INR"
-          provider="razorpay" 
-          itemDescription={`${selectedPlan.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')} Plan`}
-        />
-      )}
     </>
   )
 }
