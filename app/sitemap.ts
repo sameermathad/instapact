@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/blog/scope-creep-agency-profit',
     '/blog/essential-freelancer-clauses-2026',
     '/blog/digital-signing-client-trust',
+    '/faq',
     '/privacy',
     '/terms',
     '/refund-policy',

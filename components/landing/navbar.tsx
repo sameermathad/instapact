@@ -26,10 +26,6 @@ export function Navbar() {
           <Link href={user ? "/dashboard" : "/"} className="hover:opacity-80 transition-opacity">
             <Logo />
           </Link>
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/about" className="text-sm font-semibold text-slate-500 hover:text-indigo-600 transition-colors">About</Link>
-            <Link href="/blog" className="text-sm font-semibold text-slate-500 hover:text-indigo-600 transition-colors">Blog</Link>
-          </div>
         </div>
         <div className="flex items-center space-x-4 sm:space-x-6">
           {!loading && (
