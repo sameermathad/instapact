@@ -280,7 +280,7 @@ export default function Home() {
                              <div className="pt-8 border-t border-slate-100 flex justify-between items-center">
                                <div className="space-y-2">
                                  <div className="h-3 w-20 bg-slate-50 rounded" />
-                                 <div className="text-xl font-signature font-light text-slate-400 tracking-tighter italic">Johnathan Client</div>
+                                 <div className="text-xl font-signature font-light text-slate-400 tracking-tighter italic">Johnathan Ross</div>
                                </div>
                                <div className="h-12 px-6 bg-slate-900 rounded-lg flex items-center justify-center text-white text-xs font-bold uppercase tracking-widest">
                                   PDF Generated
