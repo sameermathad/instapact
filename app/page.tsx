@@ -207,7 +207,7 @@ export default function Home() {
            <div className="max-w-7xl mx-auto px-4">
               <div className="text-center mb-16">
                  <motion.h2 {...fadeInUp} className="text-indigo-600 font-bold tracking-wide uppercase mb-3 text-sm">Template Library</motion.h2>
-                 <motion.h3 {...fadeInUp} className="text-5xl font-black text-slate-900 tracking-tight">Iron-Clad Templates. <br/>Zero Friction.</motion.h3>
+                 <motion.h3 {...fadeInUp} className="text-5xl font-black text-slate-900 tracking-tight">Industry-Standard Templates. <br/>Zero Friction.</motion.h3>
                  <motion.p {...fadeInUp} className="mt-4 text-xl text-slate-500 max-w-2xl mx-auto font-light">
                     Professional, simple, and legally sound documents designed for the speed of modern business.
                  </motion.p>
@@ -531,7 +531,7 @@ export default function Home() {
         {/* 5. Pricing - Simple Pricing */}
         <PricingSection />
 
-        {/* 6. Trust Signals - New "Iron-Clad" Section */}
+        {/* 6. Trust Signals Section */}
         <section className="py-16 bg-slate-100 border-t border-slate-200">
            <div className="max-w-7xl mx-auto px-4">
               <div className="flex flex-wrap justify-center gap-x-12 gap-y-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
