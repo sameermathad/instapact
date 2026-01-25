@@ -33,7 +33,7 @@ export default function TermsAndConditions() {
 
       <h2>5. Contact Us</h2>
       <p>
-        In order to resolve a complaint regarding the Site or to receive further information regarding use of the Site, please contact us at: <a href="mailto:admin@vybetech.in">admin@vybetech.in</a>.
+        In order to resolve a complaint regarding the Site or to receive further information regarding use of the Site, please contact us at: <a href="mailto:legal@instapact.in" className="text-indigo-600 font-medium">legal@instapact.in</a>.
       </p>
     </>
   );

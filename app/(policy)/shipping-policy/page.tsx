@@ -41,7 +41,7 @@ export default function ShippingPolicy() {
         <section className="bg-slate-50 p-6 rounded-xl border border-slate-100">
           <h2 className="text-xl font-bold text-slate-900">4. Issues with Access</h2>
           <p className="text-slate-600 leading-relaxed">
-            In rare cases where technical issues prevent immediate delivery, please contact our support team at <a href="mailto:admin@vybetech.in" className="text-indigo-600 font-semibold underline">admin@vybetech.in</a> with your transaction ID for manual fulfillment.
+            In rare cases where technical issues prevent immediate delivery, please contact our support team at <a href="mailto:support@instapact.in" className="text-indigo-600 font-semibold underline">support@instapact.in</a> with your transaction ID for manual fulfillment.
           </p>
         </section>
       </div>

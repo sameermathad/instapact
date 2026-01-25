@@ -26,8 +26,8 @@ export default function ContactPage() {
               <div>
                 <h3 className="font-medium text-slate-900">Email</h3>
                 <p className="text-slate-500 text-sm mt-1">Our friendly team is here to help.</p>
-                <a href="mailto:admin@vybetech.in" className="text-indigo-600 font-medium hover:underline mt-1 block">
-                  admin@vybetech.in
+                <a href="mailto:support@instapact.in" className="text-indigo-600 font-medium hover:underline mt-1 block">
+                  support@instapact.in
                 </a>
               </div>
             </div>

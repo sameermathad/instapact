@@ -44,7 +44,7 @@ export default function PrivacyPolicy() {
 
       <h2>5. Contact Us</h2>
       <p>
-        If you have any questions about this privacy policy or our privacy practices, please contact us at: <a href="mailto:admin@vybetech.in">admin@vybetech.in</a>
+        If you have any questions about this privacy policy or our privacy practices, please contact us at: <a href="mailto:legal@instapact.in" className="text-indigo-600 font-medium">legal@instapact.in</a>
       </p>
     </>
   );

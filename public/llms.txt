@@ -21,7 +21,7 @@ InstaPact is a legal-tech SaaS designed to help freelancers and small agencies f
 
 ## Contact & Links
 - Website: [https://www.instapact.in](https://www.instapact.in)
-- Support: admin@vybetech.in
+- Support: support@instapact.in
 - Terms: [/terms](https://www.instapact.in/terms)
 - Privacy: [/privacy](https://www.instapact.in/privacy)
 - Blog: [/blog](https://www.instapact.in/blog)

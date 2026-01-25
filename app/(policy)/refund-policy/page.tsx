@@ -38,7 +38,7 @@ export default function RefundPolicy() {
 
       <h2>5. Contact Us</h2>
       <p>
-        For any refund requests or cancellation issues, please email us at <a href="mailto:admin@vybetech.in">admin@vybetech.in</a>.
+        For any refund requests or cancellation issues, please email us at <a href="mailto:billing@instapact.in" className="text-indigo-600 font-medium">billing@instapact.in</a>.
       </p>
     </>
   );

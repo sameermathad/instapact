@@ -42,7 +42,7 @@ export function Footer() {
               <ul className="space-y-3 text-sm">
                  <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
                  <li><a href="https://twitter.com/instapact" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Twitter / X</a></li>
-                 <li><a href="mailto:admin@vybetech.in" className="hover:text-white transition-colors">Support Email</a></li>
+                 <li><a href="mailto:support@instapact.in" className="hover:text-white transition-colors">Support Email</a></li>
               </ul>
           </div>
         </div>

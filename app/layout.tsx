@@ -19,11 +19,8 @@ const merriweather = Merriweather({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "InstaPact | Instant Digital Agreements for Freelancers & Agencies",
-    template: "%s | InstaPact"
-  },
-  description: "Create, sign, and manage legally binding agreements in under 30 seconds. Perfect for freelancers, agencies, and small businesses.",
+  title: 'InstaPact - Freelancer Contracts in 30 Seconds',
+  description: 'Create, sign, and manage legally binding freelancer agreements instantly. The #1 contract tool for Indian freelancers and agencies.',
   keywords: ["digital agreements", "e-signature", "freelance contracts", "business agreements", "legal tech", "digitally sign documents"],
   authors: [{ name: "Sameer Mathad" }],
   creator: "Sameer Mathad",
@@ -36,22 +33,22 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://www.instapact.in",
     siteName: "InstaPact",
-    title: "InstaPact | Instant Digital Agreements",
-    description: "Sign legally binding agreements in under 30 seconds.",
+    title: 'InstaPact - Freelancer Contracts in 30 Seconds',
+    description: 'Stop using Word docs. Create secure legal agreements in clicks.',
     images: [
       {
-        url: "/logo/logo@3x.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "InstaPact Logo",
+        alt: "InstaPact - Freelancer Contracts in 30 Seconds",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "InstaPact | Instant Digital Agreements",
-    description: "Sign legally binding agreements in under 30 seconds.",
-    images: ["/logo/logo@3x.png"],
+    title: 'InstaPact - Freelancer Contracts in 30 Seconds',
+    description: 'Stop using Word docs. Create secure legal agreements in clicks.',
+    images: ["/og-image.png"],
     creator: "@instapact",
   },
   robots: {
@@ -119,10 +116,9 @@ export default function RootLayout({
               "price": "399",
               "priceCurrency": "INR"
             },
-            "description": "Instant digital agreements for freelancers and agencies. Create and sign legally binding contracts in 30 seconds.",
             "aggregateRating": {
               "@type": "AggregateRating",
-              "ratingValue": "4.9",
+              "ratingValue": "4.8",
               "ratingCount": "120"
             },
             "author": {
