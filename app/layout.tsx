@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Inter, Merriweather } from "next/font/google";
+import { Inter, Merriweather, Mrs_Saint_Delafield } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
@@ -16,6 +16,12 @@ const merriweather = Merriweather({
   style: ["normal", "italic"],
   subsets: ["latin"],
   variable: "--font-merriweather",
+});
+
+const signature = Mrs_Saint_Delafield({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-signature",
 });
 
 export const metadata: Metadata = {
@@ -72,7 +78,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${merriweather.variable} font-sans antialiased`}
+        className={`${inter.variable} ${merriweather.variable} ${signature.variable} font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"
