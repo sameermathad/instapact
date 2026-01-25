@@ -56,9 +56,17 @@ export function useUsageLimit() {
         }
 
         setCount(currentCount);
-        // If limit is infinity, they are never at limit.
-        // Otherwise, effective limit is plan limit + credits.
-        const effectiveLimit = planConfig.limit === Infinity ? Infinity : (planConfig.limit + userCredits);
+        setCount(currentCount);
+        // Effective limit logic:
+        // If users buy "single" docs, they get 'credits'.
+        // If they are on the free plan (limit 1), and buy 1 credit, they should be able to create 2 docs total.
+        // So effectiveLimit = planConfig.limit + userCredits.
+        
+        let effectiveLimit = planConfig.limit;
+        if (effectiveLimit !== Infinity) {
+            effectiveLimit += userCredits;
+        }
+        
         setIsAtLimit(currentCount >= effectiveLimit);
       } catch (error) {
         console.error("Error checking usage limit:", error);

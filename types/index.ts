@@ -27,6 +27,7 @@ export interface AuditTrail {
   signerEmail: string;
   signerName: string;
   userAgent: string;
+  hash?: string;
 }
 
 export interface Contract {

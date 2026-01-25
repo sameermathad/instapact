@@ -39,15 +39,19 @@ export function HeroWidget() {
     
     // Simulate delay for effect then redirect
     setTimeout(() => {
-      // Redirect to dashboard (which would be protected)
-      // or login if we had that flow set up perfectly
-      router.push('/dashboard/new?from=hero')
+      // Send them to /auth?from=hero so they register/login first
+      // The dashboard logic already looks for localStorage, so we just need to get them logged in.
+      // We pass 'from=hero' so the auth page knows to redirect them to /dashboard/new?from=hero after login.
+      router.push('/auth?from=hero') 
     }, 800)
   }
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-2xl shadow-indigo-500/10 border-white/50 ring-1 ring-slate-900/5 backdrop-blur-sm bg-white/95 transform transition-all hover:scale-[1.01]">
       <CardHeader className="bg-gradient-to-b from-white to-slate-50 border-b border-slate-100 py-6">
+        <div className="flex items-center justify-between mb-2">
+            <span className="bg-indigo-100 text-indigo-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">Freelance Agreement</span>
+        </div>
         <CardTitle className="text-2xl font-black text-slate-900">
           Draft in Seconds
         </CardTitle>

@@ -284,17 +284,21 @@ export async function generateContractPDF(contract: Contract, isPreview: boolean
 
       yPos += 40;
 
-      // Hashing Logic (Empty for preview)
+      // Hashing Logic (Use DB hash if available, else calculate)
       let docHash = '----------------------------------------------------------------';
       if (!isPreview && contract.auditTrail) {
-          const rawData = JSON.stringify({
-              id: contract.id,
-              created: contract.createdAt,
-              signed: contract.auditTrail.signedAt,
-              signer: contract.auditTrail.signerEmail,
-              ip: contract.auditTrail.signerIp
-          });
-          docHash = SHA256(rawData).toString();
+          if (contract.auditTrail.hash) {
+             docHash = contract.auditTrail.hash;
+          } else {
+             const rawData = JSON.stringify({
+                id: contract.id,
+                created: contract.createdAt,
+                signed: contract.auditTrail.signedAt,
+                signer: contract.auditTrail.signerEmail,
+                ip: contract.auditTrail.signerIp
+             });
+             docHash = SHA256(rawData).toString();
+          }
       }
 
       // Document Metadata Section
@@ -359,7 +363,7 @@ export async function generateContractPDF(contract: Contract, isPreview: boolean
           ['SIGNER EMAIL', contract.auditTrail?.signerEmail || ''],
           ['TIMESTAMP', contract.auditTrail ? formatDate(contract.auditTrail.signedAt) : ''],
           ['IP ADDRESS', contract.auditTrail?.signerIp || ''],
-          ['DEVICE AGENT', (contract.auditTrail?.userAgent || '').substring(0, 50) + '...'],
+          ['DEVICE AGENT', contract.auditTrail?.userAgent || ''],
       ];
 
       evidenceData.forEach(([label, value], index) => {

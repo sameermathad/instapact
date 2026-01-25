@@ -44,7 +44,7 @@ export default function AuthPage() {
         await signInWithEmail(email, password);
         toast.success("Welcome back!");
       }
-      router.push("/dashboard");
+      router.push(new URLSearchParams(window.location.search).get('from') === 'hero' ? "/dashboard/new?from=hero" : "/dashboard");
     } catch (error: any) {
       console.error(error);
       const msg = error.code === 'auth/user-not-found' ? "Account not found. Please sign up." : 
@@ -61,7 +61,13 @@ export default function AuthPage() {
     try {
       await signInWithGoogle();
       toast.success("Signed in with Google!");
-      router.push("/dashboard");
+      
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('from') === 'hero') {
+          router.push("/dashboard/new?from=hero");
+      } else {
+          router.push("/dashboard");
+      }
     } catch (error) {
        toast.error("Google sign-in failed");
     } finally {

@@ -85,12 +85,20 @@ function NewContractContent() {
           const parsed = JSON.parse(draft)
           setFormData(prev => ({
             ...prev,
+            documentTitle: "Freelance Service Agreement",
             clientName: parsed.clientName,
             description: parsed.description,
             newDeliverables: parsed.description,
             amount: parsed.amount,
             currency: parsed.currency || 'USD'
           }))
+          
+          // Auto-select template and go to form view
+          setActiveTemplate('DEAL') // Default to Freelance Service Agreement
+          setStep('form')
+          const template = getTemplate('DEAL')
+          setEditableLegalText(template.legalText)
+          
           localStorage.removeItem('instapact_draft')
         } catch (e) {
           console.error("Failed to parse draft", e)
@@ -183,9 +191,12 @@ function NewContractContent() {
         await updateContractFields(editingId, sanitizedMeta, editableLegalText)
         toast.success("Agreement updated!")
       } else {
-        const branding = (plan === 'standard' || plan === 'agency' || plan === 'standard_annual' || plan === 'agency_annual') 
+        const rawBranding = (plan === 'standard' || plan === 'agency' || plan === 'standard_annual' || plan === 'agency_annual') 
           ? { logo: userProfile?.brandLogo, color: userProfile?.brandColor } 
           : undefined;
+
+        // Sanitize branding to remove undefined fields which Firestore doesn't like
+        const branding = rawBranding ? JSON.parse(JSON.stringify(rawBranding)) : undefined;
 
         const contract = await createContract(
           user.uid,

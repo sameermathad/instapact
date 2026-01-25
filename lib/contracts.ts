@@ -49,12 +49,17 @@ export async function createContract(
     creatorBranding: branding,
   };
 
-  // Convert dates to Firestore Timestamps
-  const firestoreData = {
+  // Convert dates to Firestore Timestamps and filter out undefined
+  const firestoreData: any = {
     ...contract,
     createdAt: Timestamp.fromDate(now),
     expiresAt: Timestamp.fromDate(contract.expiresAt),
   };
+
+  // Remove any undefined values as Firestore setDoc fails on them
+  Object.keys(firestoreData).forEach(key => 
+    firestoreData[key] === undefined && delete firestoreData[key]
+  );
 
   try {
     await setDoc(doc(db, CONTRACTS_COLLECTION, contractId), firestoreData);
