@@ -1,4 +1,10 @@
 import { Mail, MapPin, Phone } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact Us",
+  description: "Get in touch with the InstaPact team for support, feedback, or partnership inquiries.",
+};
 
 export default function ContactPage() {
   return (

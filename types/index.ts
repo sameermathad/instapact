@@ -43,6 +43,10 @@ export interface Contract {
   archived?: boolean;
   legalText?: string;
   clientFeedback?: string;
+  creatorBranding?: {
+    logo?: string;
+    color?: string;
+  };
 }
 
 export interface FieldDefinition {

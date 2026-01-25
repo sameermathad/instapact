@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 const posts = [
   {
     title: "Why Scope Creep is the Silent Killer of Agency Profit",
+    slug: "scope-creep-agency-profit",
     description: "It starts with 'just one small change.' Learn how a solid agreement can save you thousands in hidden costs.",
     date: "Jan 24, 2026",
     readTime: "5 min read",
@@ -17,13 +18,15 @@ const posts = [
   },
   {
     title: "The 3 Clauses Every Freelancer Needs in 2026",
+    slug: "essential-freelancer-clauses-2026",
     description: "From Intellectual Property to Termination—protect your assets and your time with these essential contract additions.",
     date: "Jan 20, 2026",
     readTime: "4 min read",
     tag: "Legal Tools"
   },
   {
-    title: "手渡し vs. Digital Signing: How Client Trust Is Built",
+    title: "First Impressions: How Digital Signing Builds Client Trust",
+    slug: "digital-signing-client-trust",
     description: "First impressions are final. Moving from messy PDF attachments to a clean signing link increases your professional standing.",
     date: "Jan 12, 2026",
     readTime: "6 min read",
@@ -44,7 +47,7 @@ export default function BlogPage() {
 
       <div className="grid gap-12 mt-12">
         {posts.map((post, idx) => (
-          <article key={idx} className="group cursor-pointer">
+          <Link key={idx} href={`/blog/${post.slug}`} className="group cursor-pointer">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-1 space-y-4">
                 <div className="flex items-center gap-4 text-xs font-semibold text-slate-400">
@@ -53,7 +56,7 @@ export default function BlogPage() {
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {post.readTime}</span>
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors tracking-tight">
-                  <a href="#">{post.title}</a>
+                  {post.title}
                 </h2>
                 <p className="text-slate-600 leading-relaxed">
                   {post.description}
@@ -63,7 +66,7 @@ export default function BlogPage() {
                 </div>
               </div>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
 

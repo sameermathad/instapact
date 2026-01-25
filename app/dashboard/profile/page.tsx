@@ -393,47 +393,122 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Branding Settings (Upsell) */}
+            {/* Branding Settings */}
             {activeTab === 'branding' && (
-              <div className="max-w-2xl">
-              <Card className="shadow-none border-indigo-100 bg-indigo-50/20 overflow-hidden relative">
-                <div className="absolute top-0 right-0 p-4">
-                  <Lock className="h-12 w-12 text-indigo-50" />
+              <div className="max-w-2xl space-y-6">
+                <Card className={cn(
+                  "shadow-none border-slate-200 overflow-hidden relative",
+                  (plan === 'free' || plan === 'single') && "opacity-60 grayscale-[0.5]"
+                )}>
+                  {(plan === 'free' || plan === 'single') && (
+                    <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[1px] flex items-center justify-center">
+                      <div className="bg-white p-6 rounded-2xl shadow-xl border border-indigo-100 text-center max-w-sm mx-4">
+                        <Lock className="h-10 w-10 text-indigo-200 mx-auto mb-3" />
+                        <h3 className="font-bold text-slate-900">Standard Plan Feature</h3>
+                        <p className="text-sm text-slate-500 mb-4">Upgrade to Standard to use your own logo and brand colors on agreements.</p>
+                        <Button onClick={() => setActiveTab('plans')} className="bg-indigo-600 hover:bg-indigo-700">See Pricing</Button>
+                      </div>
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                       <Palette className="h-5 w-5 text-indigo-600" />
+                       Custom Branding
+                    </CardTitle>
+                    <CardDescription>Personalize the agreement experience for your clients.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid gap-2">
+                      <Label htmlFor="brandLogo">Brand Logo URL</Label>
+                      <div className="flex gap-4 items-start">
+                        <div className="flex-1 space-y-2">
+                          <Input 
+                            id="brandLogo" 
+                            value={profile.brandLogo || ''} 
+                            onChange={(e) => setProfile({...profile, brandLogo: e.target.value})}
+                            placeholder="https://yourcompany.com/logo.png"
+                          />
+                          <p className="text-[10px] text-slate-400 italic font-medium">Use a transparent PNG or SVG for best results.</p>
+                        </div>
+                        <div className="h-16 w-32 border border-slate-100 rounded-lg flex items-center justify-center bg-slate-50 overflow-hidden">
+                          {profile.brandLogo ? (
+                            <img src={profile.brandLogo} alt="Logo Preview" className="max-h-12 max-w-[110px] object-contain" />
+                          ) : (
+                            <span className="text-[10px] text-slate-300">Logo Preview</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      <Label htmlFor="brandColor">Primary Brand Color</Label>
+                      <div className="flex items-center space-x-4">
+                        <div 
+                          className="h-10 w-10 rounded-xl border border-slate-200 shadow-sm transition-transform hover:scale-105" 
+                          style={{ backgroundColor: profile.brandColor || '#6366f1' }}
+                        />
+                        <Input 
+                          id="brandColor"
+                          value={profile.brandColor || '#6366f1'} 
+                          onChange={(e) => setProfile({...profile, brandColor: e.target.value})}
+                          placeholder="#6366f1"
+                          className="w-32 font-mono"
+                        />
+                        <div className="flex gap-2">
+                          {['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#000000'].map(color => (
+                            <button
+                              key={color}
+                              type="button"
+                              onClick={() => setProfile({...profile, brandColor: color})}
+                              className="w-6 h-6 rounded-full border border-slate-200 shadow-sm"
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="bg-slate-50 border-t border-slate-100 flex justify-between">
+                     <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Preview updates live</p>
+                     <Button 
+                       size="sm" 
+                       onClick={() => handleSave()} 
+                       disabled={saving || plan === 'free' || plan === 'single'}
+                       className="bg-indigo-600 hover:bg-indigo-700"
+                     >
+                        {saving ? "Saving..." : "Save Branding"}
+                     </Button>
+                  </CardFooter>
+                </Card>
+
+                {/* Live Preview Card */}
+                <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl">
+                   <h3 className="text-sm font-bold opacity-60 uppercase mb-4 tracking-tighter">Live Preview</h3>
+                   <div className="bg-white rounded-lg p-6 text-slate-900">
+                      <div className="flex justify-between items-start mb-8">
+                         <div className="h-10 w-24 bg-slate-100 rounded flex items-center justify-center">
+                            {profile.brandLogo ? (
+                              <img src={profile.brandLogo} alt="Logo" className="max-h-8 object-contain" />
+                            ) : (
+                              <span className="text-[10px] text-slate-300 font-bold">YOUR LOGO</span>
+                            )}
+                         </div>
+                         <div className="h-6 px-3 rounded-full flex items-center" style={{ backgroundColor: `${profile.brandColor || '#6366f1'}20`, color: profile.brandColor || '#6366f1' }}>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Pending</span>
+                         </div>
+                      </div>
+                      <div className="space-y-3">
+                         <div className="h-2 w-full bg-slate-50 rounded" />
+                         <div className="h-2 w-4/5 bg-slate-50 rounded" />
+                         <div className="h-2 w-3/4 bg-slate-100 rounded" />
+                      </div>
+                      <div className="mt-8 pt-6 border-t border-slate-100">
+                         <button className="w-full h-10 rounded-lg text-white font-bold text-sm" style={{ backgroundColor: profile.brandColor || '#6366f1' }}>
+                            Sign Agreement
+                         </button>
+                      </div>
+                   </div>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-indigo-900">Custom Branding</CardTitle>
-                  <CardDescription>Remove InstaPact branding and use your own.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6 opacity-60 pointer-events-none">
-                  <div className="grid gap-2">
-                    <Label>Brand Logo</Label>
-                    <div className="h-20 w-40 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-white text-slate-400 text-xs">
-                      No logo uploaded
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label>Primary Brand Color</Label>
-                    <div className="flex items-center space-x-2">
-                      <div className="h-8 w-8 rounded-full bg-indigo-600 border border-slate-200" />
-                      <Input value="#6366f1" readOnly className="w-24" />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="bg-indigo-50 border-t border-indigo-100 p-6">
-                  <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
-                    <div className="text-center sm:text-left">
-                      <p className="text-sm font-bold text-indigo-900 leading-tight">Upgrade to Standard Plan</p>
-                      <p className="text-[10px] text-indigo-700">Remove InstaPact watermarks and use custom logos.</p>
-                    </div>
-                    <Button 
-                      onClick={() => setActiveTab('plans')}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100"
-                    >
-                      See Pricing
-                    </Button>
-                  </div>
-                </CardFooter>
-              </Card>
               </div>
             )}
 

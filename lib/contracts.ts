@@ -26,7 +26,8 @@ export async function createContract(
   creatorEmail: string,
   template: TemplateType,
   meta: ContractMeta,
-  legalText?: string
+  legalText?: string,
+  branding?: { logo?: string; color?: string }
 ): Promise<Contract> {
   const contractId = generateShortId(6);
   const now = new Date();
@@ -45,6 +46,7 @@ export async function createContract(
     createdAt: now,
     expiresAt: getExpirationDate(now),
     legalText,
+    creatorBranding: branding,
   };
 
   // Convert dates to Firestore Timestamps

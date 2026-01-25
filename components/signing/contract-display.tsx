@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { FileText, Shield, Handshake, Calendar, DollarSign, User, Mail, AlertCircle } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { formatDate, cn } from '@/lib/utils';
 
 interface ContractDisplayProps {
   contract: Contract;
@@ -20,13 +20,15 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
     }
   };
 
+  const accentColor = contract.creatorBranding?.color || '#6366f1';
+
   return (
     <div className="space-y-12 text-slate-800">
       
       {/* 1. Document Header */}
       <div className="space-y-6">
-        <div className="flex justify-between items-start">
-          <div className="space-y-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
+          <div className="space-y-2 flex-1">
             <Badge variant="outline" className="bg-slate-50 text-slate-500 border-slate-200 font-mono tracking-wider text-[10px] py-1 px-2 mb-2">
               ID: {contract.id.toUpperCase()}
             </Badge>
@@ -38,7 +40,11 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
             </p>
           </div>
           
-
+          {contract.creatorBranding?.logo && (
+            <div className="h-16 w-32 flex items-center justify-end flex-shrink-0 self-end sm:self-start">
+               <img src={contract.creatorBranding.logo} alt="Brand Logo" className="max-h-16 max-w-full object-contain" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -51,7 +57,7 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
           
           {/* Creator */}
           <div className="space-y-1">
-            <span className="text-xs font-medium text-indigo-600 uppercase mb-1 block">Service Provider</span>
+            <span className="text-xs font-bold uppercase mb-1 block" style={{ color: accentColor }}>Service Provider</span>
             <div className="font-bold text-lg text-slate-900">{contract.creatorName}</div>
             <div className="text-slate-500 text-sm flex items-center">
               <Mail className="w-3.5 h-3.5 mr-2" />
@@ -61,7 +67,7 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
 
           {/* Client */}
           <div className="space-y-1">
-            <span className="text-xs font-medium text-indigo-600 uppercase mb-1 block">Client / Signer</span>
+            <span className="text-xs font-bold uppercase mb-1 block" style={{ color: accentColor }}>Client / Signer</span>
             <div className="font-bold text-lg text-slate-900">{contract.meta.clientName}</div>
             {contract.meta.clientEmail && (
               <div className="text-slate-500 text-sm flex items-center">
@@ -89,7 +95,7 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
             </div>
             <div className="sm:col-span-1">
               <dt className="text-sm font-medium text-slate-500 mb-1">Additional Fee</dt>
-              <dd className="text-2xl font-bold text-emerald-600">
+              <dd className="text-2xl font-bold" style={{ color: accentColor === '#000000' ? '#059669' : accentColor }}>
                 {formatCurrency(contract.meta.additionalFee || 0, contract.meta.currency)}
               </dd>
             </div>
@@ -107,16 +113,16 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
           <div className="space-y-8">
              <div className="flex flex-col sm:flex-row gap-6 p-6 bg-slate-50 rounded-xl border border-slate-100">
                 <div className="flex-1">
-                  <span className="text-sm text-slate-500 font-medium block mb-1">Total Project Fee</span>
-                  <span className="text-3xl font-bold text-emerald-600 tracking-tight">
-                    {formatCurrency(contract.meta.amount || 0, contract.meta.currency)}
-                  </span>
+                   <span className="text-sm text-slate-500 font-medium block mb-1">Total Project Fee</span>
+                   <span className="text-3xl font-bold tracking-tight" style={{ color: accentColor === '#000000' ? '#059669' : accentColor }}>
+                     {formatCurrency(contract.meta.amount || 0, contract.meta.currency)}
+                   </span>
                 </div>
                 <div className="flex-1 border-l border-slate-200 pl-6 border-dashed">
-                  <span className="text-sm text-slate-500 font-medium block mb-1">Payment Schedule</span>
-                  <span className="text-lg font-semibold text-slate-900">
-                     {contract.meta.paymentSchedule || 'Standard 50/50 Split'}
-                  </span>
+                   <span className="text-sm text-slate-500 font-medium block mb-1">Payment Schedule</span>
+                   <span className="text-lg font-semibold text-slate-900">
+                      {contract.meta.paymentSchedule || 'Standard 50/50 Split'}
+                   </span>
                 </div>
              </div>
 
@@ -133,7 +139,10 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
                  <ul className="grid grid-cols-1 gap-2">
                    {contract.meta.deliverablesList.map((item, i) => (
                      <li key={i} className="flex items-start text-slate-700 bg-white p-3 border border-slate-100 rounded-md shadow-sm">
-                       <span className="h-5 w-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0">
+                       <span 
+                        className="h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0"
+                        style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
+                       >
                          {i + 1}
                        </span>
                        {item}

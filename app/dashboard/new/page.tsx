@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { useUsageLimit } from "@/hooks/useUsageLimit"
 import { PLANS } from "@/lib/config"
+import { getUserProfile, UserProfile } from "@/lib/user"
 
 export default function NewContractPage() {
   return (
@@ -32,7 +33,14 @@ function NewContractContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
-  const { isAtLimit, loading: usageLoading } = useUsageLimit()
+  const { isAtLimit, loading: usageLoading, plan } = useUsageLimit()
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  
+  useEffect(() => {
+    if (user) {
+      getUserProfile(user.uid).then(setUserProfile)
+    }
+  }, [user])
   
   const [step, setStep] = useState<'template' | 'form'>('template')
   const [activeTemplate, setActiveTemplate] = useState<TemplateType | null>(null)
@@ -175,13 +183,18 @@ function NewContractContent() {
         await updateContractFields(editingId, sanitizedMeta, editableLegalText)
         toast.success("Agreement updated!")
       } else {
+        const branding = (plan === 'standard' || plan === 'agency' || plan === 'standard_annual' || plan === 'agency_annual') 
+          ? { logo: userProfile?.brandLogo, color: userProfile?.brandColor } 
+          : undefined;
+
         const contract = await createContract(
           user.uid,
           user.displayName || 'Creator',
           user.email || '',
           activeTemplate,
           sanitizedMeta,
-          editableLegalText
+          editableLegalText,
+          branding
         )
         redirectId = contract.id;
         toast.success("Agreement created!")

@@ -132,6 +132,23 @@ export function usePayment(): UsePaymentReturn {
 
             console.log("Payment data received, opening Razorpay modal", paymentData);
 
+            let isResolved = false;
+            const safeResolve = (val: boolean) => {
+                if (!isResolved) {
+                    isResolved = true;
+                    clearTimeout(watchdog);
+                    resolve(val);
+                }
+            };
+
+            // Watchdog timer: If modal doesn't open or dismiss within 15 seconds, reset state
+            const watchdog = setTimeout(() => {
+                console.log("Watchdog timer triggered: resetting processing state after 15s");
+                setProcessing(false);
+                toast.dismiss('payment-process');
+                safeResolve(false);
+            }, 15000);
+
             const options: any = {
                 key: keyId,
                 name: "InstaPact",
@@ -139,7 +156,6 @@ export function usePayment(): UsePaymentReturn {
                 image: "https://www.instapact.in/logo/logo.png",
                 handler: async function (response: any) {
                     console.log("Payment successful, verifying...", response);
-                    clearTimeout(watchdog);
                     toast.loading("Verifying payment...", { id: 'payment-process' });
                     try {
                        const verifyRes = await fetch('/api/razorpay/verify', {
@@ -157,14 +173,14 @@ export function usePayment(): UsePaymentReturn {
                        if (verifyRes.ok && verifyData.status === 'success') {
                            console.log("Verification successful");
                            await fulfillPurchase(type, itemId);
-                           resolve(true);
+                           safeResolve(true);
                        } else {
                            throw new Error(verifyData.message || 'Verification failed');
                        }
                     } catch(e: any) {
                         console.error("Verification error:", e);
                         toast.error(e.message || "Payment verification failed", { id: 'payment-process' });
-                        resolve(false);
+                        safeResolve(false);
                     } finally {
                         setProcessing(false);
                     }
@@ -179,11 +195,10 @@ export function usePayment(): UsePaymentReturn {
                 modal: {
                     ondismiss: function() {
                         console.log("Payment modal dismissed by user");
-                        clearTimeout(watchdog);
                         setProcessing(false);
                         toast.dismiss('payment-process');
                         toast.error("Payment cancelled");
-                        resolve(false);
+                        safeResolve(false);
                     }
                 }
             };
@@ -199,20 +214,11 @@ export function usePayment(): UsePaymentReturn {
             console.log("Initializing Razorpay checkout...");
             const rzp1 = new window.Razorpay(options);
             
-            // Watchdog timer: If modal doesn't open or dismiss within 15 seconds, reset state
-            const watchdog = setTimeout(() => {
-                if (processing) { 
-                    console.log("Watchdog timer triggered: resetting processing state after 15s");
-                    setProcessing(false);
-                }
-            }, 15000);
-
             rzp1.on('payment.failed', function (response: any){
-                clearTimeout(watchdog);
                 console.error("Payment failed:", response.error);
                 toast.error(response.error.description || "Payment failed", { id: 'payment-process' });
                 setProcessing(false);
-                resolve(false);
+                safeResolve(false);
             });
 
             rzp1.open();
