@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { RichTextEditor } from "@/components/ui/rich-text-editor"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Loader2, ArrowLeft, ArrowRight, Target, Shield, Briefcase, FileText, User, Sparkles, Edit3, Check, MessageSquare } from "lucide-react"
@@ -35,17 +37,26 @@ function NewContractContent() {
   const [loading, setLoading] = useState(false)
   const { isAtLimit, loading: usageLoading, plan } = useUsageLimit()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   
   useEffect(() => {
     if (user) {
-      getUserProfile(user.uid).then(setUserProfile)
+      getUserProfile(user.uid).then(p => {
+        setUserProfile(p)
+        if (p && !editingId) {
+           setFormData(prev => ({ 
+               ...prev, 
+               ...(p.taxId ? { creatorTaxId: p.taxId } : {}),
+               ...(p.paymentInstructions ? { paymentDetails: formatToHtml(p.paymentInstructions) } : {}) 
+           }))
+        }
+      })
     }
-  }, [user])
+  }, [user, editingId])
   
   const [step, setStep] = useState<'template' | 'form'>('template')
   const [activeTemplate, setActiveTemplate] = useState<TemplateType | null>(null)
   const [editableLegalText, setEditableLegalText] = useState<string>('')
-  const [editingId, setEditingId] = useState<string | null>(null)
   const [clientFeedback, setClientFeedback] = useState<string | null>(null)
   
   const [formData, setFormData] = useState<Record<string, any>>({
@@ -69,7 +80,7 @@ function NewContractContent() {
            }
            setFormData(meta)
            setClientFeedback(c.clientFeedback || null)
-           setEditableLegalText(c.legalText || getTemplate(c.template).legalText)
+           setEditableLegalText(formatToHtml(c.legalText || getTemplate(c.template).legalText))
            setStep('form')
         }
       }
@@ -97,7 +108,7 @@ function NewContractContent() {
           setActiveTemplate('DEAL') // Default to Freelance Service Agreement
           setStep('form')
           const template = getTemplate('DEAL')
-          setEditableLegalText(template.legalText)
+          setEditableLegalText(formatToHtml(template.legalText))
           
           localStorage.removeItem('instapact_draft')
         } catch (e) {
@@ -107,18 +118,24 @@ function NewContractContent() {
     }
   }, [searchParams, user])
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }))
   }
 
+const formatToHtml = (text: string) => {
+    if (!text) return '';
+    if (text.includes('<p>') || text.includes('<br')) return text;
+    return text.split('\n\n').map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
+  }
+
   const handleTemplateSelect = (type: TemplateType) => {
     setActiveTemplate(type)
     setStep('form')
     const template = getTemplate(type)
-    setEditableLegalText(template.legalText)
+    setEditableLegalText(formatToHtml(template.legalText))
     setFormData(prev => ({
       ...prev,
       documentTitle: template.name
@@ -173,7 +190,15 @@ function NewContractContent() {
         deliverablesList: (typeof formData.deliverablesList === 'string') 
             ? formData.deliverablesList.split('\n').filter(Boolean) 
             : formData.deliverablesList || null,
-        paymentSchedule: formData.paymentSchedule || null
+        paymentSchedule: formData.paymentSchedule || null,
+        milestones: formData.milestones || null,
+        timeline: formData.timeline || null,
+        gstApplicable: formData.gstApplicable || false,
+        clientTaxId: formData.clientTaxId || null,
+        creatorTaxId: formData.creatorTaxId || null,
+        paymentDetails: formData.paymentDetails || null,
+        taxName: formData.taxName || null,
+        taxRate: formData.gstApplicable ? (Number(formData.taxRate) || 0) : undefined
       }
       
       if (activeTemplate === 'SCOPE' && formData.amount && !formData.additionalFee) {
@@ -226,12 +251,10 @@ function NewContractContent() {
         return (
           <div key={field.name} className="space-y-2">
             <Label htmlFor={field.name}>{field.label}</Label>
-            <Textarea
-              id={field.name}
-              placeholder={field.placeholder}
+            <RichTextEditor
               value={formData[field.name] || ''}
-              onChange={(e) => handleInputChange(field.name, e.target.value)}
-              className="resize-none h-32"
+              onChange={(val) => handleInputChange(field.name, val)}
+              placeholder={field.placeholder}
             />
           </div>
         )
@@ -241,7 +264,16 @@ function NewContractContent() {
             <Label>{field.label}</Label>
             <Select 
               value={formData[field.name] || ''} 
-              onValueChange={(val) => handleInputChange(field.name, val)}
+              onValueChange={(val) => {
+                  handleInputChange(field.name, val)
+                  if (field.name === 'currency') {
+                      if (val === 'INR') {
+                          setFormData(prev => ({ ...prev, taxName: 'GST', taxRate: 18, gstApplicable: false }))
+                      } else {
+                          setFormData(prev => ({ ...prev, taxName: 'Tax', taxRate: 0, gstApplicable: false }))
+                      }
+                  }
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select..." />
@@ -353,6 +385,82 @@ function NewContractContent() {
           <CardContent className="pt-8 space-y-8">
               <form id="contract-form" onSubmit={handleSubmit} className="space-y-6">
                   {currentTemplateDef.fields.map(renderField)}
+                  
+                  {/* Dynamic Milestones Field */}
+                  {formData.paymentSchedule === 'milestone' && renderField({
+                      name: 'milestones',
+                      label: 'Milestone Details',
+                      type: 'textarea',
+                      placeholder: 'e.g.\n1. 50% on Design Approval\n2. 50% on Final Handoff',
+                      required: true
+                  })}
+
+                  {/* Generic Tax Settings */}
+                  <div className="flex flex-col space-y-4 border p-4 rounded-lg bg-slate-50 border-slate-200">
+                     <div className="flex items-start space-x-3">
+                         <Checkbox 
+                            id="tax" 
+                            checked={formData.gstApplicable === true} 
+                            onCheckedChange={(checked: boolean | 'indeterminate') => handleInputChange('gstApplicable', checked === true)}
+                         />
+                         <div className="grid gap-1.5 leading-none">
+                            <Label htmlFor="tax" className="text-sm font-bold text-slate-800 leading-none cursor-pointer">
+                              {formData.currency === 'INR' ? 'GST Applicable (18%)' : 'Applicable Tax / VAT'}
+                            </Label>
+                            <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
+                               {formData.currency === 'INR' 
+                                 ? 'Check this if you are a registered business. 18% GST will be added.' 
+                                 : 'Check this to add VAT, Sales Tax, or other levies to the total fee.'}
+                            </p>
+                         </div>
+                     </div>
+                     
+                     {formData.gstApplicable && (
+                        <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-1 pl-7">
+                           <div className="space-y-2">
+                              <Label className="text-xs">Tax Name</Label>
+                              <Input 
+                                placeholder="e.g. VAT" 
+                                value={formData.taxName || (formData.currency === 'INR' ? 'GST' : '')} 
+                                onChange={(e) => handleInputChange('taxName', e.target.value)}
+                              />
+                           </div>
+                           <div className="space-y-2">
+                              <Label className="text-xs">Rate (%)</Label>
+                              <Input 
+                                type="number" 
+                                placeholder="0" 
+                                value={formData.taxRate || (formData.currency === 'INR' ? 18 : '')}
+                                onChange={(e) => handleInputChange('taxRate', e.target.value)}
+                              />
+                           </div>
+                        </div>
+                     )}
+                  </div>
+
+                  {formData.gstApplicable && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-top-2 duration-300">
+                      <div className="space-y-2">
+                        <Label htmlFor="creatorTaxId">Your Tax ID / GSTIN</Label>
+                        <Input
+                          id="creatorTaxId"
+                          placeholder="e.g. 29ABCDE1234F1Z5"
+                          value={formData.creatorTaxId || ''}
+                          onChange={(e) => handleInputChange('creatorTaxId', e.target.value)}
+                        />
+                        <p className="text-xs text-slate-400">Pre-filled from your profile.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="clientTaxId">Client Tax ID / GSTIN (Optional)</Label>
+                        <Input
+                          id="clientTaxId"
+                          placeholder="e.g. 29XYZAB5678C1Z9"
+                          value={formData.clientTaxId || ''}
+                          onChange={(e) => handleInputChange('clientTaxId', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
               </form>
           </CardContent>
         </Card>
@@ -361,15 +469,17 @@ function NewContractContent() {
           <CardHeader className="bg-indigo-50/30 border-b border-indigo-100">
               <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2"><FileText className="w-5 h-5 text-indigo-600" /> Legal Terms</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-xs text-indigo-600" onClick={() => setEditableLegalText(currentTemplateDef.legalText)}>Reset to Default</Button>
+                  <Button variant="ghost" size="sm" className="text-xs text-indigo-600" onClick={() => setEditableLegalText(formatToHtml(currentTemplateDef.legalText))}>Reset to Default</Button>
               </div>
           </CardHeader>
           <CardContent className="p-0">
-              <Textarea 
-                value={editableLegalText} 
-                onChange={(e) => setEditableLegalText(e.target.value)} 
-                className="min-h-[400px] text-sm font-sans leading-relaxed border-0 focus-visible:ring-0 rounded-none p-8"
-              />
+              <div className="p-6">
+                 <RichTextEditor
+                   value={editableLegalText} 
+                   onChange={(val) => setEditableLegalText(val)} 
+                   className="[&_p]:mb-4"
+                 />
+              </div>
           </CardContent>
           <CardFooter className="bg-slate-50 border-t border-slate-100 flex justify-between py-6 px-8">
               <Button variant="ghost" onClick={handleBackToSelection} disabled={loading}>Cancel</Button>

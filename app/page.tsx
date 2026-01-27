@@ -372,7 +372,67 @@ export default function Home() {
 
        
 
-        {/* 3. How It Works - 30 Seconds to Signed */}
+
+        {/* 2.5 Balanced Testimonials - Professional & Distinct */}
+        <section className="py-24 bg-white border-b border-slate-50">
+           <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center mb-16">
+                 <motion.h2 {...fadeInUp} className="text-indigo-600 font-bold tracking-wide uppercase mb-3 text-sm">Community Love</motion.h2>
+                 <motion.h3 {...fadeInUp} className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">Loved by Independent Builders</motion.h3>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                 {[
+                    {
+                      text: "I used to spend 2 hours drafting contracts. Now it takes 20 seconds. InstaPact is a literal money printer for my agency.",
+                      name: "Sarah Jenkins",
+                      role: "Brand Strategist @ Studio A",
+                      gradient: "from-indigo-50 to-white",
+                      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80"
+                    },
+                    {
+                      text: "Finally, a tool that doesn't feel like a legacy enterprise software. My clients actually compliment the signing experience.",
+                      name: "Davide Rossi",
+                      role: "Freelance UI/UX Designer",
+                      gradient: "from-purple-50 to-white",
+                      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80"
+                    },
+                    {
+                      text: "Scope creep used to kill my margins. Now I just send an InstaPact link mid-call and lock in the extra fees.",
+                      name: "Marcus Chen",
+                      role: "Full Stack Developer",
+                      gradient: "from-blue-50 to-white",
+                      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80"
+                    }
+                 ].map((t, i) => (
+                    <motion.div 
+                       key={i}
+                       initial={{ opacity: 0, y: 20 }}
+                       whileInView={{ opacity: 1, y: 0 }}
+                       viewport={{ once: true }}
+                       transition={{ delay: i * 0.1 }}
+                       className={`p-8 rounded-2xl bg-gradient-to-b ${t.gradient} border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 md:hover:-translate-y-1`}
+                    >
+                       <div className="flex gap-1 mb-6">
+                          {[1,2,3,4,5].map(star => <div key={star} className="w-4 h-4 text-orange-400 fill-orange-400">★</div>)}
+                       </div>
+                       <p className="text-slate-800 leading-relaxed mb-8 text-lg font-medium">"{t.text}"</p>
+                       <div className="flex items-center gap-4 pt-6 border-t border-slate-100/50">
+                          <img 
+                             src={t.image} 
+                             alt={t.name}
+                             className="w-12 h-12 rounded-xl object-cover shadow-sm border border-white"
+                          />
+                          <div>
+                             <div className="font-bold text-slate-900 text-base">{t.name}</div>
+                             <div className="text-xs text-slate-500 font-bold uppercase tracking-wide opacity-80">{t.role}</div>
+                          </div>
+                       </div>
+                    </motion.div>
+                 ))}
+              </div>
+           </div>
+        </section>
         <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
            {/* Abstract Background */}
            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>

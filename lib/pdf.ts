@@ -88,12 +88,42 @@ const drawFooter = (doc: jsPDF, pageNum: number) => {
 
 // --- Generate Logic ---
 
+const formatHtmlForPdf = (html: string | null | undefined): string => {
+  if (!html) return '';
+  
+  // Basic replacement for formatting to preserve structure
+  let text = html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<li>/gi, '• ');
+
+  // Strip remaining tags
+  text = text.replace(/<[^>]+>/g, '');
+  
+  // Decode common entities
+  text = text
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
+  // Reduce multiple newlines
+  return text.replace(/\n\s*\n/g, '\n\n').trim();
+};
+
 export async function generateContractPDF(contract: Contract, isPreview: boolean = false): Promise<jsPDF> {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const contentWidth = pageWidth - (MARGIN * 2);
   let yPos = 20;
 
+  // ... (Header and Parties render logic remains same, skipping lines 93-169 for brevity in replacement if possible, but replace tool needs context)
+  // Re-implementing from line 91 to keep context safe.
+  
   // 1. Header (2-Column)
   drawLogo(doc, MARGIN, yPos);
   
@@ -170,6 +200,14 @@ export async function generateContractPDF(contract: Contract, isPreview: boolean
   const renderDetail = (label: string, value: string | null | undefined, isCurrency = false) => {
     if (!value) return;
     
+    // Check page break for detail block
+    if (yPos > doc.internal.pageSize.getHeight() - 30) {
+        drawFooter(doc, doc.getCurrentPageInfo().pageNumber);
+        doc.addPage();
+        drawLogo(doc, MARGIN, 20);
+        yPos = 40;
+    }
+
     doc.setFontSize(10);
     doc.setFont(FONTS.header, 'bold');
     doc.setTextColor(COLORS.textMedium[0], COLORS.textMedium[1], COLORS.textMedium[2]);
@@ -184,10 +222,13 @@ export async function generateContractPDF(contract: Contract, isPreview: boolean
         doc.setTextColor(COLORS.textDark[0], COLORS.textDark[1], COLORS.textDark[2]);
     }
     
-    const splitValue = doc.splitTextToSize(value, contentWidth - 50);
+    // Format HTML content for PDF text
+    const cleanValue = isCurrency ? value : formatHtmlForPdf(value);
+    
+    const splitValue = doc.splitTextToSize(cleanValue, contentWidth - 50);
     doc.text(splitValue, valueX, yPos);
     
-    yPos += (splitValue.length * 6) + 8; // Comfortable spacing
+    yPos += (splitValue.length * 5) + 8; // Comfortable spacing
   };
 
   // RENDER BASED ON TEMPLATE
@@ -201,11 +242,66 @@ export async function generateContractPDF(contract: Contract, isPreview: boolean
       renderDetail('Purpose:', contract.meta.description);
   } else if (contract.template === 'DEAL') {
       renderDetail('Project:', contract.meta.description);
-      renderDetail('Total Fee:', formatCurrency(contract.meta.amount || 0, contract.meta.currency), true);
-      renderDetail('Payment:', contract.meta.paymentSchedule === 'upfront' ? '100% Upfront' : contract.meta.paymentSchedule);
-      if (contract.meta.deliverablesList) {
-          renderDetail('Deliverables:', (contract.meta.deliverablesList as unknown as string[]).join(', '));
+      
+      // Safe Currency Formatter for PDF (Standard fonts don't support ₹ symbol)
+      const safeFormatCurrency = (amount: number, currency: 'USD' | 'INR') => {
+         const formatted = formatCurrency(amount, currency);
+         return currency === 'INR' ? formatted.replace('₹', 'Rs.') : formatted;
+      };
+
+      const baseAmount = contract.meta.amount || 0;
+      renderDetail('Total Fee:', safeFormatCurrency(baseAmount, contract.meta.currency), true);
+
+      // Tax Info - Moved IMMEDIATELY after Total Fee
+      if (contract.meta.gstApplicable || (contract.meta.taxRate && contract.meta.taxRate > 0)) {
+          const taxRate = contract.meta.taxRate || 18;
+          const taxAmount = (baseAmount * taxRate) / 100;
+          const totalAmount = baseAmount + taxAmount;
+    
+          const taxLabel = `${contract.meta.taxName || 'Tax'} (${taxRate}%)`;
+          
+          renderDetail(taxLabel + ':', safeFormatCurrency(taxAmount, contract.meta.currency), true);
+          renderDetail('Grand Total:', safeFormatCurrency(totalAmount, contract.meta.currency), true);
+    
+          if (contract.meta.creatorTaxId) {
+             renderDetail('Provider Tax ID:', contract.meta.creatorTaxId);
+          }
+          if (contract.meta.clientTaxId) {
+             renderDetail('Client Tax ID:', contract.meta.clientTaxId);
+          }
       }
+
+      renderDetail('Payment:', contract.meta.paymentSchedule === 'upfront' ? '100% Upfront' : contract.meta.paymentSchedule);
+
+      if (contract.meta.timeline) {
+          renderDetail('Timeline:', contract.meta.timeline);
+      }
+      
+      if (contract.meta.milestones) {
+          renderDetail('Milestones:', contract.meta.milestones);
+      }
+
+      // Deliverables List - Last item to allow page overflow
+      if (contract.meta.deliverablesList && contract.meta.deliverablesList.length > 0) {
+          const joinedDeliverables = contract.meta.deliverablesList.map((d: string) => {
+              const cleaned = formatHtmlForPdf(d);
+              // Strip existing keys (bullets, dashes, stars) and spaces from the start
+              return `• ${cleaned.replace(/^[\s•\-\*]+/, '')}`;
+          }).join('\n');
+          renderDetail('Deliverables:', joinedDeliverables);
+      }
+  }
+  
+  // Payment Info (Banking Details)
+  if (contract.meta.paymentDetails) {
+      // Force page break if payment details are lengthy and near bottom
+      if (yPos > doc.internal.pageSize.getHeight() - 50) {
+         drawFooter(doc, doc.getCurrentPageInfo().pageNumber);
+         doc.addPage();
+         drawLogo(doc, MARGIN, 20);
+         yPos = 40;
+      }
+      renderDetail('Payment Instructions:', contract.meta.paymentDetails);
   }
 
   drawFooter(doc, 1);
@@ -215,8 +311,9 @@ export async function generateContractPDF(contract: Contract, isPreview: boolean
   drawLogo(doc, MARGIN, 20);
   yPos = 40;
   
-  const legalText = contract.legalText || getTemplate(contract.template).legalText;
-  const sections = legalText.split('\n');
+  const rawLegalText = contract.legalText || getTemplate(contract.template).legalText;
+  const cleanLegalText = formatHtmlForPdf(rawLegalText);
+  const sections = cleanLegalText.split('\n');
   
   doc.setFontSize(9);
   doc.setTextColor(COLORS.textMedium[0], COLORS.textMedium[1], COLORS.textMedium[2]);
@@ -229,11 +326,12 @@ export async function generateContractPDF(contract: Contract, isPreview: boolean
       if (yPos > pageHeight - 40) {
           drawFooter(doc, doc.getCurrentPageInfo().pageNumber);
           doc.addPage();
+          drawLogo(doc, MARGIN, 20); // Logo on new page too
           yPos = 30;
       }
 
       if (line.trim() === '') {
-          yPos += 1; 
+          yPos += 2; 
           return;
       }
 

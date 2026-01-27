@@ -19,6 +19,14 @@ export interface ContractMeta {
   documentTitle?: string;
   deliverablesList?: string[];
   paymentSchedule?: string;
+  milestones?: string;
+  timeline?: string;
+  gstApplicable?: boolean;
+  clientTaxId?: string;
+  creatorTaxId?: string;
+  paymentDetails?: string;
+  taxName?: string;
+  taxRate?: number;
 }
 
 export interface AuditTrail {

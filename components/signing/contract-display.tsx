@@ -10,6 +10,23 @@ interface ContractDisplayProps {
   contract: Contract;
 }
 
+const SafeHtml = ({ content, className }: { content: string, className?: string }) => {
+  if (!content) return null;
+  // Basic check to see if it's HTML or plain text
+  const isHtml = /<[a-z][\s\S]*>/i.test(content);
+  
+  if (!isHtml) {
+    return <p className={cn("whitespace-pre-wrap leading-relaxed", className)}>{content}</p>;
+  }
+
+  return (
+    <div 
+      className={cn("prose prose-sm max-w-none text-slate-700 leading-relaxed [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:mb-1", className)}
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+};
+
 export function ContractDisplay({ contract }: ContractDisplayProps) {
   const getTemplateLabel = () => {
     switch (contract.template) {
@@ -101,8 +118,8 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
             </div>
             <div className="sm:col-span-2 bg-slate-50 p-6 rounded-lg border border-slate-100">
               <dt className="text-xs font-bold uppercase text-slate-400 mb-3">New Deliverables / Changes</dt>
-              <dd className="text-base text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {contract.meta.newDeliverables}
+              <dd className="text-base text-slate-700">
+                <SafeHtml content={contract.meta.newDeliverables || ''} />
               </dd>
             </div>
           </dl>
@@ -128,29 +145,79 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
 
              <div className="space-y-2">
                <h4 className="text-sm font-bold text-slate-900">Project Description</h4>
-               <p className="text-slate-600 leading-relaxed text-base">
-                 {contract.meta.description}
-               </p>
+               <SafeHtml content={contract.meta.description || ''} className="text-slate-600 text-base" />
              </div>
+
+             {contract.meta.milestones && (
+                <div className="space-y-2">
+                   <h4 className="text-sm font-bold text-slate-900">Milestones</h4>
+                   <SafeHtml content={contract.meta.milestones} className="text-slate-600 text-base" />
+                </div>
+             )}
+
+             {contract.meta.timeline && (
+                <div className="space-y-2">
+                   <h4 className="text-sm font-bold text-slate-900">Timeline</h4>
+                   <p className="text-slate-600 text-base">{contract.meta.timeline}</p>
+                </div>
+             )}
 
              {contract.meta.deliverablesList && contract.meta.deliverablesList.length > 0 && (
                <div className="space-y-3">
                  <h4 className="text-sm font-bold text-slate-900">Deliverables</h4>
-                 <ul className="grid grid-cols-1 gap-2">
-                   {contract.meta.deliverablesList.map((item, i) => (
-                     <li key={i} className="flex items-start text-slate-700 bg-white p-3 border border-slate-100 rounded-md shadow-sm">
-                       <span 
-                        className="h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5 flex-shrink-0"
-                        style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
-                       >
-                         {i + 1}
-                       </span>
-                       {item}
-                     </li>
-                   ))}
-                 </ul>
+                 <div className="grid grid-cols-1 gap-2">
+                   {/* Fix: If single item contains rich text bullets, don't wrap in numbered list to avoid double bullets/weird layout */}
+                   {contract.meta.deliverablesList.length === 1 && /<ul|<ol|<li/i.test(contract.meta.deliverablesList[0]) ? (
+                      <div className="text-slate-700 bg-white p-4 border border-slate-100 rounded-md shadow-sm">
+                         <SafeHtml content={contract.meta.deliverablesList[0]} className="text-sm [&_ul]:mb-0 [&_ol]:mb-0" />
+                      </div>
+                   ) : (
+                     contract.meta.deliverablesList.map((item, i) => (
+                       <div key={i} className="flex items-start text-slate-700 bg-white p-4 border border-slate-100 rounded-md shadow-sm">
+                         <span 
+                          className="h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-1 flex-shrink-0"
+                          style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
+                         >
+                           {i + 1}
+                         </span>
+                         <div className="flex-1 min-w-0">
+                            <SafeHtml content={item} className="[&_p]:mb-2 text-sm" />
+                         </div>
+                       </div>
+                     ))
+                   )}
+                 </div>
                </div>
              )}
+
+             {/* Tax / Global Tax Info */}
+             {(contract.meta.gstApplicable || (contract.meta.taxRate && contract.meta.taxRate > 0)) && (
+               <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div className="flex justify-between items-center text-sm">
+                     <span className="font-semibold text-slate-700">
+                        {contract.meta.taxName || 'Tax'} ({contract.meta.taxRate || 0}%)
+                     </span>
+                     <span className="font-mono text-slate-600">
+                        {/* Note: This is just a display label, actual calc happens in payment/invoice usually unless shown here */}
+                        Included in final invoice
+                     </span>
+                  </div>
+                  {contract.meta.creatorTaxId && (
+                     <div className="mt-2 text-xs text-slate-500">
+                        Service Provider Tax ID: {contract.meta.creatorTaxId}
+                     </div>
+                  )}
+               </div>
+             )}
+
+             {/* Payment Details (Bank Info) - Only shown if exists */}
+             {contract.meta.paymentDetails && (
+               <div className="mt-8 space-y-2 pt-6 border-t border-slate-200 border-dashed">
+                  <h4 className="text-sm font-bold text-slate-900">Payment Instructions</h4>
+                  <SafeHtml content={contract.meta.paymentDetails} className="text-sm text-slate-600" />
+               </div>
+             )}
+
           </div>
         )}
 
@@ -158,9 +225,7 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
         {contract.template === 'NDA' && (
           <div className="bg-slate-50 p-6 rounded-xl border border-slate-100">
              <h4 className="text-sm font-bold text-slate-900 mb-3">Purpose of Disclosure</h4>
-             <p className="text-slate-700 leading-relaxed">
-               {contract.meta.description || 'Confidential information exchange regarding potential partnership.'}
-             </p>
+             <SafeHtml content={contract.meta.description || 'Confidential information exchange regarding potential partnership.'} />
           </div>
         )}
       </section>
@@ -177,8 +242,11 @@ export function ContractDisplay({ contract }: ContractDisplayProps) {
             </AccordionTrigger>
             <AccordionContent>
               <div className="px-6 pb-6 pt-2 border-t border-slate-200">
-                <div className="prose prose-sm prose-slate max-w-none text-slate-600 font-sans whitespace-pre-wrap leading-relaxed h-[400px] overflow-y-auto pr-4 custom-scrollbar bg-white p-6 rounded-md shadow-inner border border-slate-100">
-                  {contract.legalText || getTemplate(contract.template).legalText}
+                <div className="bg-white p-8 rounded-md shadow-inner border border-slate-100 h-[500px] overflow-y-auto pr-4 custom-scrollbar">
+                   <SafeHtml 
+                      content={contract.legalText || getTemplate(contract.template).legalText} 
+                      className="text-slate-600 font-sans text-sm [&_p]:mb-4"
+                   />
                 </div>
               </div>
             </AccordionContent>

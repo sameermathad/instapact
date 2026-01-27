@@ -216,6 +216,13 @@ This Agreement shall be governed by applicable laws.`,
         required: true,
       },
       {
+        name: 'timeline',
+        label: 'Project Timeline',
+        type: 'text',
+        placeholder: 'e.g., 4 weeks, Delivered by Jan 20th',
+        required: false,
+      },
+      {
         name: 'amount',
         label: 'Total Fee',
         type: 'number',

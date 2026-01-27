@@ -170,7 +170,7 @@ export default function ProfilePage() {
     { id: 'general', label: 'General', icon: User },
     { id: 'legal', label: 'Legal Entity', icon: Building2 },
     { id: 'branding', label: 'Branding', icon: Palette, locked: true },
-    { id: 'payments', label: 'Payout Details', icon: CreditCard },
+    { id: 'payments', label: 'Banking Details', icon: CreditCard },
     { id: 'plans', label: 'Subscription Plans', icon: Sparkles },
     { id: 'billing', label: 'Billing & Usage', icon: FileText },
     { id: 'notifications', label: 'Notifications', icon: Bell },
@@ -358,7 +358,7 @@ export default function ProfilePage() {
               <div className="max-w-2xl">
                 <Card className="shadow-none border-slate-200 text-slate-400">
                   <CardHeader>
-                    <CardTitle>Payout Details</CardTitle>
+                    <CardTitle>Banking Details</CardTitle>
                     <CardDescription>How you'd like your clients to pay you.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">

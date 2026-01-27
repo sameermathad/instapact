@@ -22,7 +22,7 @@ export default function DashboardPage() {
   const [contracts, setContracts] = useState<Contract[]>([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'active' | 'archived'>('active')
-  const { count, limit, isAtLimit, loading: usageLoading, plan } = useUsageLimit()
+  const { count, limit, isAtLimit, loading: usageLoading, plan, credits } = useUsageLimit()
 
   useEffect(() => {
     async function fetchContracts() {
@@ -58,7 +58,7 @@ export default function DashboardPage() {
                  "ml-2 font-medium px-2 py-0 border",
                  isAtLimit ? "bg-red-50 text-red-700 border-red-100" : "bg-indigo-50 text-indigo-700 border-indigo-100"
                )}>
-                 {count} / {limit} Used
+                 {count} / {limit + (credits || 0)} Used
                </Badge>
              )}
            </div>
