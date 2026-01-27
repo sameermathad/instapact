@@ -43,6 +43,17 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>(tabParam || 'general')
   const { count, limit, plan, isAtLimit, credits, loading: usageLoading } = useUsageLimit()
   const { processPayment, processing: paymentProcessing } = usePayment()
+  const [isGlobal, setIsGlobal] = useState(true)
+  
+  // Set global flag based on timezone
+  useEffect(() => {
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      if (timeZone === 'Asia/Calcutta' || timeZone === 'Asia/Kolkata') {
+        setIsGlobal(false)
+      }
+    } catch (e) {}
+  }, [])
   
   useEffect(() => {
     if (tabParam && tabParam !== activeTab) {
@@ -537,8 +548,8 @@ export default function ProfilePage() {
                         <CardDescription className="mt-1">
                           You are currently paying <span className="font-semibold text-slate-900">
                               {PLANS[plan].price === 0 
-                                ? '₹0' 
-                                : `₹${PLANS[plan].price}${PLANS[plan].isMonthly ? '/mo' : PLANS[plan].isAnnual ? '/yr' : ''}`}
+                                ? (isGlobal ? '$0' : '₹0')
+                                : `${isGlobal ? '$' : '₹'}${isGlobal ? PLANS[plan].priceUSD : PLANS[plan].price}${PLANS[plan].isMonthly ? '/mo' : PLANS[plan].isAnnual ? '/yr' : ''}`}
                           </span>
                         </CardDescription>
                       </div>
@@ -601,10 +612,10 @@ export default function ProfilePage() {
                               size="sm"
                               variant="outline"
                               className="w-full mt-2 bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-                              onClick={() => processPayment('credit_purchase', '1', 99)}
+                              onClick={() => processPayment('credit_purchase', '1', isGlobal ? 5 : 99, isGlobal ? 'USD' : 'INR')}
                               disabled={paymentProcessing}
                             >
-                              {paymentProcessing ? "Starting..." : "Add 1 Document (₹99)"}
+                              {paymentProcessing ? "Starting..." : `Add 1 Document (${isGlobal ? '$5' : '₹99'})`}
                             </Button>
                          </div>
                       </div>

@@ -7,8 +7,9 @@ export interface PlanConfig {
   limit: number; // number of docs
   isMonthly: boolean;
   isAnnual?: boolean;
-  price?: number;
-  currency?: string;
+  price: number; // INR
+  priceUSD: number; // USD
+  currency?: string; // Default base currency
   razorpayPlanId?: string;
 }
 
@@ -19,6 +20,7 @@ export const PLANS: Record<PlanType, PlanConfig> = {
     limit: 1,
     isMonthly: false,
     price: 0,
+    priceUSD: 0,
     currency: 'INR',
   },
   single: {
@@ -27,6 +29,7 @@ export const PLANS: Record<PlanType, PlanConfig> = {
     limit: 1, // 1 doc per purchase
     isMonthly: false,
     price: 99,
+    priceUSD: 5,
     currency: 'INR',
   },
   standard: {
@@ -35,15 +38,17 @@ export const PLANS: Record<PlanType, PlanConfig> = {
     limit: 10,
     isMonthly: true,
     price: 399,
+    priceUSD: 12,
     currency: 'INR',
     razorpayPlanId: 'plan_S7pWo2zduZIP8R',
   },
   agency: {
     id: 'agency',
     name: 'Agency',
-    limit: 999999, // Use a large number instead of Infinity for serialization
+    limit: 999999,
     isMonthly: true,
     price: 999,
+    priceUSD: 29,
     currency: 'INR',
     razorpayPlanId: 'plan_S7pXAqJTVyu3Ta',
   },
@@ -54,6 +59,7 @@ export const PLANS: Record<PlanType, PlanConfig> = {
     isMonthly: false,
     isAnnual: true,
     price: 3999,
+    priceUSD: 99,
     currency: 'INR',
     razorpayPlanId: 'plan_S7pyCu509F383e',
   },
@@ -64,6 +70,7 @@ export const PLANS: Record<PlanType, PlanConfig> = {
     isMonthly: false,
     isAnnual: true,
     price: 9999,
+    priceUSD: 249,
     currency: 'INR',
     razorpayPlanId: 'plan_S7pzR0dbTQIapW',
   },

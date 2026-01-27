@@ -1,6 +1,4 @@
-"use client"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Check, Zap, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -8,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge"
 import { usePayment } from "@/hooks/usePayment"
 import { cn } from "@/lib/utils"
+import { PLANS } from "@/lib/config"
 
 interface PlanSelectionProps {
   onSuccess?: () => void
@@ -19,13 +18,25 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
   const { processPayment } = usePayment()
   const [activePlanId, setActivePlanId] = useState<string | null>(null)
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
+  const [isGlobal, setIsGlobal] = useState(true)
+
+  useEffect(() => {
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+      if (timeZone === 'Asia/Calcutta' || timeZone === 'Asia/Kolkata') {
+        setIsGlobal(false)
+      }
+    } catch (e) {}
+  }, [])
+
+  const currencySymbol = isGlobal ? "$" : "₹"
 
   const plans = [
     {
       id: 'single',
       name: 'One-time',
       description: 'Perfect for one-off agreements.',
-      price: 99,
+      price: isGlobal ? PLANS.single.priceUSD : PLANS.single.price,
       unit: '/document',
       features: ['1 Document included', 'Lifetime access', 'Basic Templates'],
       buttonText: 'Buy 1 Document',
@@ -35,7 +46,9 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
       id: billingCycle === 'monthly' ? 'standard' : 'standard_annual',
       name: 'Standard',
       description: 'For freelancers & pros',
-      price: billingCycle === 'monthly' ? 399 : 3999,
+      price: billingCycle === 'monthly' 
+        ? (isGlobal ? PLANS.standard.priceUSD : PLANS.standard.price)
+        : (isGlobal ? PLANS.standard_annual.priceUSD : PLANS.standard_annual.price),
       unit: billingCycle === 'monthly' ? '/month' : '/year',
       features: ['10 Documents / month', 'Priority Support', 'Custom Branding'],
       buttonText: 'Upgrade to Standard',
@@ -46,7 +59,9 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
       id: billingCycle === 'monthly' ? 'agency' : 'agency_annual',
       name: 'Agency',
       description: 'For teams & scale',
-      price: billingCycle === 'monthly' ? 999 : 9999,
+      price: billingCycle === 'monthly' 
+        ? (isGlobal ? PLANS.agency.priceUSD : PLANS.agency.price)
+        : (isGlobal ? PLANS.agency_annual.priceUSD : PLANS.agency_annual.price),
       unit: billingCycle === 'monthly' ? '/month' : '/year',
       features: ['Unlimited Documents', 'API Access', '24/7 Dedicated Support'],
       buttonText: 'Upgrade to Agency',
@@ -110,7 +125,7 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
                   <span className={cn(
                     "text-4xl font-black",
                     plan.accentColor === 'indigo' ? "text-indigo-900" : plan.accentColor === 'purple' ? "text-purple-900" : "text-slate-900"
-                  )}>₹{plan.price.toLocaleString()}</span>
+                  )}>{currencySymbol}{plan.price.toLocaleString()}</span>
                   <span className="text-slate-500 font-medium ml-1">{plan.unit}</span>
                 </div>
               </CardHeader>
@@ -132,7 +147,8 @@ export function PlanSelection({ onSuccess, redirectPath = '/dashboard' }: PlanSe
                   onClick={async () => {
                     setActivePlanId(plan.id)
                     try {
-                      const success = await processPayment('plan_upgrade', plan.id as any, plan.price)
+                      // Pass currency explicitly
+                      const success = await processPayment('plan_upgrade', plan.id as any, plan.price, isGlobal ? 'USD' : 'INR')
                       if (success) {
                          if (onSuccess) onSuccess()
                          else router.push(redirectPath)

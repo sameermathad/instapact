@@ -9,7 +9,7 @@ import { PlanType, PLANS } from '@/lib/config'
 export type PaymentType = 'plan_upgrade' | 'credit_purchase'
 
 interface UsePaymentReturn {
-  processPayment: (type: PaymentType, itemId: string, amount: number) => Promise<boolean>
+  processPayment: (type: PaymentType, itemId: string, amount: number, currency?: 'INR' | 'USD') => Promise<boolean>
   processing: boolean
 }
 
@@ -63,7 +63,7 @@ export function usePayment(): UsePaymentReturn {
     }
   }
 
-  const processPayment = async (type: PaymentType, itemId: string, amount: number): Promise<boolean> => {
+  const processPayment = async (type: PaymentType, itemId: string, amount: number, currency: 'INR' | 'USD' = 'INR'): Promise<boolean> => {
     if (!user) {
       toast.error("You must be logged in to make a purchase")
       return false
@@ -72,6 +72,7 @@ export function usePayment(): UsePaymentReturn {
     setProcessing(true)
     toast.loading("Initializing payment...", { id: 'payment-process' })
 
+    // ... (loadSDK code remains same, omitted for brevity if not changing) ...
     const loadSDK = () => {
         return new Promise((resolve) => {
             if (window.Razorpay) {
@@ -88,7 +89,7 @@ export function usePayment(): UsePaymentReturn {
 
     return new Promise(async (resolve) => {
         try {
-            console.log("Preparing payment...", { type, itemId, amount });
+            console.log("Preparing payment...", { type, itemId, amount, currency });
             
             if (!window.Razorpay) {
                 console.log("Razorpay SDK missing, attempting to load...");
@@ -123,7 +124,7 @@ export function usePayment(): UsePaymentReturn {
             } else {
                 const res = await fetch('/api/razorpay/order', {
                     method: 'POST',
-                    body: JSON.stringify({ amount, currency: 'INR' }),
+                    body: JSON.stringify({ amount, currency }),
                     headers: { 'Content-Type': 'application/json' }
                 });
                 paymentData = await res.json();
