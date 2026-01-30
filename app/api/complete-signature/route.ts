@@ -16,6 +16,12 @@ export async function POST(request: Request) {
 
     console.log(`[complete-signature] Processing completion (ADMIN) for ${contractId}`);
 
+    // 0. Defensive Check for Admin SDK
+    if (!adminDb || !adminStorage) {
+      console.error('[complete-signature] Firebase Admin SDK not initialized');
+      return NextResponse.json({ error: 'Server configuration error: Admin SDK missing' }, { status: 500 });
+    }
+
     // 1. Fetch Contract Data from Firestore using Admin SDK
     const docRef = adminDb.collection('contracts').doc(contractId);
     const docSnap = await docRef.get();
