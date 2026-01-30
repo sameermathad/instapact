@@ -2,6 +2,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDummyKeyForBuild",
@@ -22,6 +23,7 @@ const databaseId = process.env.NEXT_PUBLIC_FIREBASE_DB_ID ||
 // Firebase services
 export const auth = getAuth(app);
 export const db = databaseId === '(default)' ? getFirestore(app) : getFirestore(app, databaseId);
+export const storage = getStorage(app);
 
 console.log(`[firebase.ts] Using Firestore database: ${databaseId}`);
 

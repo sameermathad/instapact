@@ -56,6 +56,7 @@ export interface Contract {
     logo?: string;
     color?: string;
   };
+  signedUrl?: string;
 }
 
 export interface FieldDefinition {

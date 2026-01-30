@@ -131,8 +131,12 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
 
         // Trigger celebration and download
         setTimeout(() => {
-           downloadContractPDF(updatedContract);
-           toast.message('Downloading your signed copy...');
+           if (contract.signedUrl) {
+             window.open(contract.signedUrl, '_blank');
+           } else {
+             downloadContractPDF(updatedContract);
+           }
+           toast.message('Opening your signed copy...');
         }, 2000);
 
       } else {
@@ -242,7 +246,13 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
                   A secure copy has been generated for your downloads.
                 </p>
               </div>
-              <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800" onClick={() => downloadContractPDF(contract)}>
+              <Button variant="outline" className="border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800" onClick={() => {
+                if (contract.signedUrl) {
+                  window.open(contract.signedUrl, '_blank');
+                } else {
+                  downloadContractPDF(contract);
+                }
+              }}>
                 Download Copy
               </Button>
             </div>

@@ -79,8 +79,13 @@ export function ContractCard({ contract }: ContractCardProps) {
   };
 
   const handleDownload = () => {
-    downloadContractPDF(contract);
-    toast.success("Downloading PDF...");
+    if (contract.signedUrl) {
+      window.open(contract.signedUrl, '_blank');
+      toast.success("Opening signed PDF...");
+    } else {
+      downloadContractPDF(contract);
+      toast.success("Downloading PDF...");
+    }
   };
 
 

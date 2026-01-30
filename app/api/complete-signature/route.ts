@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { adminDb, adminStorage } from '@/lib/firebase-admin';
 import { generateContractPDF } from '@/lib/pdf';
 import { Contract } from '@/types';
 
@@ -15,17 +14,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing contractId' }, { status: 400 });
     }
 
-    console.log(`[complete-signature] Processing completion for ${contractId}`);
+    console.log(`[complete-signature] Processing completion (ADMIN) for ${contractId}`);
 
-    // 1. Fetch Contract Data from Firestore
-    const docRef = doc(db, 'contracts', contractId);
-    const docSnap = await getDoc(docRef);
+    // 1. Fetch Contract Data from Firestore using Admin SDK
+    const docRef = adminDb.collection('contracts').doc(contractId);
+    const docSnap = await docRef.get();
 
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
     }
 
     const contractData = docSnap.data();
+    if (!contractData) {
+      return NextResponse.json({ error: 'Contract data is empty' }, { status: 404 });
+    }
+
     const contract: Contract = {
       ...contractData,
       id: docSnap.id,
@@ -42,10 +45,25 @@ export async function POST(request: Request) {
     }
 
     // 2. Generate PDF on Server
-    // Note: jsPDF works in Node.js environment of Next.js API routes
     const docPdf = await generateContractPDF(contract);
     const pdfArrayBuffer = docPdf.output('arraybuffer');
     const pdfBuffer = Buffer.from(pdfArrayBuffer);
+
+    // 2.5 Upload PDF to Firebase Storage using Admin SDK
+    console.log(`[complete-signature] Uploading PDF via Admin SDK: ${contractId}`);
+    const bucket = adminStorage.bucket();
+    const file = bucket.file(`signed_contracts/${contractId}.pdf`);
+    
+    await file.save(pdfBuffer, {
+      metadata: { contentType: 'application/pdf' },
+      public: true, // Make it public for easy access via URL
+    });
+
+    const signedUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+    
+    // Update Firestore using Admin SDK
+    await docRef.update({ signedUrl });
+    console.log(`[complete-signature] PDF uploaded and URL saved: ${signedUrl}`);
 
     // 3. Prepare Recipients
     const creatorEmail = contract.creatorEmail;
