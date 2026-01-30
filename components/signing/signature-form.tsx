@@ -45,8 +45,10 @@ export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultNam
           if (data.valid) {
             setPreVerified(true);
             setEmail(data.email);
-            // If they land with a valid token, we still want them to confirm their name in "details" first
-            // But when they hit "Continue" in details, we skip OTP
+            // Progress to consent step automatically if we have their details from the contract
+            if (name) {
+              setStep('consent');
+            }
           } else {
             console.warn('[SignatureForm] Invalid token:', data.error);
           }
