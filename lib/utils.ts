@@ -66,3 +66,9 @@ export function getSigningUrl(contractId: string): string {
   }
   return `/s/${contractId}`;
 }
+
+// Strip HTML tags from a string
+export function stripHtml(html: string | undefined | null): string {
+  if (!html) return '';
+  return html.replace(/<[^>]*>?/gm, '').trim();
+}

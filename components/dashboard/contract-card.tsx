@@ -23,7 +23,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
-import { formatDate, getSigningUrl, copyToClipboard } from "@/lib/utils"
+import { formatDate, getSigningUrl, copyToClipboard, stripHtml } from "@/lib/utils"
 import { toast } from "sonner"
 import { downloadContractPDF } from "@/lib/pdf"
 import { deleteContract, archiveContract, unarchiveContract } from "@/lib/contracts"
@@ -153,7 +153,7 @@ export function ContractCard({ contract }: ContractCardProps) {
                </p>
              )}
              <p className="line-clamp-2 text-xs text-slate-500">
-               {contract.meta.description || contract.meta.originalProjectRef || contract.meta.newDeliverables || "No description"}
+               {stripHtml(contract.meta.description || contract.meta.originalProjectRef || contract.meta.newDeliverables) || "No description"}
              </p>
           </div>
         </CardContent>
