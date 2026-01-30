@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp, limit } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 
 export async function POST(request: Request) {
   try {
@@ -10,16 +9,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Token and Contract ID are required' }, { status: 400 });
     }
 
-    const tokensRef = collection(db, 'auth_tokens');
-    const q = query(
-      tokensRef,
-      where('token', '==', token),
-      where('contractId', '==', contractId),
-      where('used', '==', false),
-      limit(1)
-    );
+    if (!adminDb) {
+      console.error('[validate-token] Admin SDK not initialized');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
 
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await adminDb.collection('auth_tokens')
+      .where('token', '==', token)
+      .where('contractId', '==', contractId)
+      .where('used', '==', false)
+      .limit(1)
+      .get();
 
     if (querySnapshot.empty) {
       return NextResponse.json({ valid: false, error: 'Invalid or expired secure link' });
@@ -29,8 +29,8 @@ export async function POST(request: Request) {
     const tokenData = tokenDoc.data();
 
     // Check expiry
-    const now = Timestamp.now();
-    if (tokenData.expiresAt.seconds < now.seconds) {
+    const now = Date.now() / 1000;
+    if (tokenData.expiresAt.seconds < now) {
       return NextResponse.json({ valid: false, error: 'Security token has expired' });
     }
 
@@ -41,6 +41,6 @@ export async function POST(request: Request) {
 
   } catch (error: any) {
     console.error('[validate-token] Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', details: error.message }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
+import * as admin from 'firebase-admin';
 
 export async function POST(request: Request) {
   try {
@@ -10,16 +10,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email and Code are required' }, { status: 400 });
     }
 
-    // Simplified query to avoid requiring composite indexes
-    const q = query(
-      collection(db, 'verification_codes'),
-      where('email', '==', email),
-      where('code', '==', code.trim()),
-      limit(1)
-    );
+    if (!adminDb) {
+      console.error('[confirm-code] Admin SDK not initialized');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
 
-    console.log(`[confirm-code] Checking code for ${email}`);
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await adminDb.collection('verification_codes')
+      .where('email', '==', email)
+      .where('code', '==', code.trim())
+      .limit(1)
+      .get();
 
     if (querySnapshot.empty) {
       console.log(`[confirm-code] No matching code found for ${email}`);
@@ -35,11 +35,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Verification code has expired' }, { status: 400 });
     }
 
-    // Proof of Verification: Mark the record as verified
-    const { updateDoc, doc } = await import('firebase/firestore');
-    await updateDoc(doc(db, 'verification_codes', docSnap.id), {
+    // Mark the record as verified using Admin SDK
+    await docSnap.ref.update({
       verified: true,
-      verifiedAt: Timestamp.now()
+      verifiedAt: admin.firestore.Timestamp.now()
     });
 
     console.log(`[confirm-code] Success for ${email}`);
@@ -48,8 +47,7 @@ export async function POST(request: Request) {
     console.error('Confirm code error:', error);
     return NextResponse.json({ 
       error: 'Internal server error', 
-      details: error.message,
-      code: error.code
+      details: error.message
     }, { status: 500 });
   }
 }

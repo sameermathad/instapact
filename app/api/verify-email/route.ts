@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, Timestamp, doc, getDoc, query, where, getDocs, deleteDoc, limit } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 import { sendVerificationCode } from '@/lib/email';
+import * as admin from 'firebase-admin';
 
 export async function POST(request: Request) {
   try {
@@ -11,12 +11,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email, Creator Name, and Contract ID are required' }, { status: 400 });
     }
 
+    if (!adminDb) {
+      console.error('[verify-email] Admin SDK not initialized');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
     // Security Check: If the contract is locked to a specific email, enforce it here
-    const contractSnap = await getDoc(doc(db, 'contracts', contractId));
+    const contractRef = adminDb.collection('contracts').doc(contractId);
+    const contractSnap = await contractRef.get();
     
-    if (contractSnap.exists()) {
+    if (contractSnap.exists) {
       const contractData = contractSnap.data();
-      const lockedEmail = contractData.meta?.clientEmail;
+      const lockedEmail = contractData?.meta?.clientEmail;
       
       if (lockedEmail && lockedEmail.toLowerCase() !== email.toLowerCase()) {
         console.warn(`[verify-email] Security Alert: Unauthorized email ${email} tried to verify for contract ${contractId} (locked to ${lockedEmail})`);
@@ -29,18 +35,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Server configuration error: Email service key missing' }, { status: 500 });
     }
 
-    // Cleanup: Delete old unverified codes for this email/contract to keep DB clean
-    const oldCodesQuery = query(
-      collection(db, 'verification_codes'),
-      where('email', '==', email),
-      where('contractId', '==', contractId),
-      where('verified', '==', false),
-      limit(5)
-    );
+    // Cleanup: Delete old unverified codes for this email/contract
+    const oldCodes = await adminDb.collection('verification_codes')
+      .where('email', '==', email)
+      .where('contractId', '==', contractId)
+      .where('verified', '==', false)
+      .limit(5)
+      .get();
 
-    const oldDocs = await getDocs(oldCodesQuery);
-    const deletePromises = oldDocs.docs.map(d => deleteDoc(doc(db, 'verification_codes', d.id)));
-    await Promise.all(deletePromises);
+    const batch = adminDb.batch();
+    oldCodes.docs.forEach((d: any) => batch.delete(d.ref));
+    await batch.commit();
 
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -49,13 +54,13 @@ export async function POST(request: Request) {
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
-    await addDoc(collection(db, 'verification_codes'), {
+    await adminDb.collection('verification_codes').add({
       email,
       code,
-      expiresAt: Timestamp.fromDate(expiresAt),
+      expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
       contractId,
       verified: false,
-      createdAt: Timestamp.now(),
+      createdAt: admin.firestore.Timestamp.now(),
     });
 
     // Send Email
@@ -73,8 +78,7 @@ export async function POST(request: Request) {
     console.error('Verify email error:', error);
     return NextResponse.json({ 
       error: 'Internal server error', 
-      details: error.message,
-      code: error.code 
+      details: error.message
     }, { status: 500 });
   }
 }
