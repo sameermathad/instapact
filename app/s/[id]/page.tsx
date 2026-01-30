@@ -122,6 +122,13 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
         setSigned(true);
         toast.success('Contract signed successfully!');
         
+        // Trigger completion workflow (Emails & PDFs) in background
+        fetch('/api/complete-signature', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contractId: contract.id })
+        }).catch(err => console.error('Failed to trigger completion:', err));
+
         // Trigger celebration and download
         setTimeout(() => {
            downloadContractPDF(updatedContract);
