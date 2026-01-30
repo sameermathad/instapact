@@ -247,7 +247,23 @@ export default function ProfilePage() {
                     <CardTitle>Display Identity</CardTitle>
                     <CardDescription>How you appear to your clients.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6">
+                    <div className="flex items-center gap-6 pb-4 border-b border-slate-100">
+                      <div className="h-20 w-20 rounded-full border-4 border-white shadow-lg overflow-hidden bg-slate-100 flex-shrink-0">
+                        {profile.photoURL ? (
+                          <img src={profile.photoURL} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-slate-300">
+                            <User className="h-10 w-10" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <Label className="text-sm font-bold text-slate-900 block mb-1">Profile Picture</Label>
+                        <p className="text-xs text-slate-500 max-w-[240px]">This is your secondary identity image, usually synced from your Google account.</p>
+                      </div>
+                    </div>
+
                     <div className="grid gap-2">
                       <Label htmlFor="displayName">Display Name</Label>
                       <Input 
@@ -430,7 +446,7 @@ export default function ProfilePage() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="grid gap-2">
-                      <Label htmlFor="brandLogo">Brand Logo URL</Label>
+                      <Label htmlFor="brandLogo">Business Brand Logo URL</Label>
                       <div className="flex gap-4 items-start">
                         <div className="flex-1 space-y-2">
                           <Input 

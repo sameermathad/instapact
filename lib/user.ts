@@ -5,13 +5,14 @@ export interface UserProfile {
   uid: string;
   displayName: string;
   email: string;
+  photoURL?: string; // Google/Auth profile picture
   // Legal
   legalName?: string;
   businessAddress?: string;
   taxId?: string;
   // Branding
   jobTitle?: string;
-  brandLogo?: string;
+  brandLogo?: string; // Custom business logo
   brandColor?: string;
   // Payments
   defaultCurrency?: 'INR' | 'USD';
@@ -92,7 +93,8 @@ export async function syncUserToFirestore(uid: string, data: { email: string; di
         uid,
         email: data.email,
         displayName: data.displayName || data.email.split('@')[0],
-        brandLogo: data.photoURL || '',
+        photoURL: data.photoURL || '',
+        brandLogo: '', // Start with no brand logo
         plan: 'free',
         credits: 0,
         lifetimeCount: 0,
@@ -106,6 +108,7 @@ export async function syncUserToFirestore(uid: string, data: { email: string; di
       await updateDoc(docRef, {
         email: data.email,
         displayName: data.displayName || docSnap.data().displayName,
+        photoURL: data.photoURL || docSnap.data().photoURL || '',
         updatedAt: now,
       });
       console.log(`[user.ts] Updated profile for ${uid}`);
