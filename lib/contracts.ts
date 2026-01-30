@@ -105,22 +105,24 @@ export async function getContract(contractId: string): Promise<Contract | null> 
 // For MVP simplicity and to avoid index errors, we'll filter in memory.
 export async function getCreatorContracts(creatorId: string, status: 'active' | 'archived' = 'active'): Promise<Contract[]> {
   console.log(`[contracts.ts] Fetching contracts for ${creatorId} (status: ${status})`)
+  
+  // Simplified query to avoid missing index errors in prod
+  // Composite indexes are required for where + orderBy on different fields
   const q = query(
     collection(db, CONTRACTS_COLLECTION),
-    where('creatorId', '==', creatorId),
-    orderBy('createdAt', 'desc')
+    where('creatorId', '==', creatorId)
   );
 
   try {
     const querySnapshot = await getDocs(q);
-    console.log(`[contracts.ts] Found ${querySnapshot.size} total contracts`)
+    console.log(`[contracts.ts] Found ${querySnapshot.size} total contracts in DB`);
     
     const contracts: Contract[] = [];
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       
-      // Filter in memory to avoid index requirement for != archived
+      // Filter in memory for archive status
       if (status === 'active' && data.archived) return;
       if (status === 'archived' && !data.archived) return;
 
@@ -138,7 +140,8 @@ export async function getCreatorContracts(creatorId: string, status: 'active' | 
       } as Contract);
     });
 
-    return contracts;
+    // Sort in-memory instead of on Firestore to bypass missing index bottleneck
+    return contracts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   } catch (e) {
     console.error(`[contracts.ts] Failed to fetch contracts for ${creatorId}`, e)
     throw e
@@ -223,25 +226,25 @@ export async function signContract(
 
 // Get agreement count for a user, optionally filtered by date range
 export async function getAgreementCount(creatorId: string, period?: { start: Date; end: Date }): Promise<number> {
-  let q = query(
+  const q = query(
     collection(db, CONTRACTS_COLLECTION),
     where('creatorId', '==', creatorId)
   );
 
-  if (period) {
-    q = query(q, 
-      where('createdAt', '>=', Timestamp.fromDate(period.start)),
-      where('createdAt', '<=', Timestamp.fromDate(period.end))
-    );
-  }
-
   try {
     const querySnapshot = await getDocs(q);
     let count = 0;
+    
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      // For usage tracking, we only count non-archived agreements
-      if (!data.archived) {
+      if (data.archived) return;
+
+      if (period) {
+        const createdAt = data.createdAt?.toDate();
+        if (createdAt >= period.start && createdAt <= period.end) {
+          count++;
+        }
+      } else {
         count++;
       }
     });
