@@ -81,7 +81,7 @@ export async function updateUserProfile(uid: string, data: Partial<UserProfile>)
   }
 }
 
-export async function syncUserToFirestore(uid: string, data: { email: string; displayName?: string; photoURL?: string }): Promise<void> {
+export async function syncUserToFirestore(uid: string, data: { email: string; displayName?: string; photoURL?: string }): Promise<{ isNew: boolean }> {
   try {
     const docRef = doc(db, USERS_COLLECTION, uid);
     const docSnap = await getDoc(docRef);
@@ -103,6 +103,7 @@ export async function syncUserToFirestore(uid: string, data: { email: string; di
       };
       await setDoc(docRef, newProfile);
       console.log(`[user.ts] Created new profile for ${uid}`);
+      return { isNew: true };
     } else {
       // Existing User - Update basic info if changed
       await updateDoc(docRef, {
@@ -112,10 +113,12 @@ export async function syncUserToFirestore(uid: string, data: { email: string; di
         updatedAt: now,
       });
       console.log(`[user.ts] Updated profile for ${uid}`);
+      return { isNew: false };
     }
   } catch (error) {
     console.error("Error syncing user to Firestore:", error);
     // Don't throw, we don't want to block login/signup if DB sync fails
+    return { isNew: false };
   }
 }
 

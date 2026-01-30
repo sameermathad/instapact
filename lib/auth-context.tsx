@@ -17,18 +17,18 @@ import { syncUserToFirestore } from './user';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<{ isNew: boolean }>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
-  signUpWithEmail: (email: string, pass: string, name: string) => Promise<void>;
+  signUpWithEmail: (email: string, pass: string, name: string) => Promise<{ isNew: boolean }>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signInWithGoogle: async () => {},
+  signInWithGoogle: async () => ({ isNew: false }),
   signInWithEmail: async () => {},
-  signUpWithEmail: async () => {},
+  signUpWithEmail: async () => ({ isNew: false }),
   logout: async () => {},
 });
 
@@ -50,12 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       if (result.user) {
-        await syncUserToFirestore(result.user.uid, {
+        return await syncUserToFirestore(result.user.uid, {
           email: result.user.email || '',
           displayName: result.user.displayName || '',
           photoURL: result.user.photoURL || '',
         });
       }
+      return { isNew: false };
     } catch (error) {
       console.error("Error signing in with Google", error);
       throw error;
@@ -78,11 +79,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await updateProfile(userCredential.user, {
           displayName: name
         });
-        await syncUserToFirestore(userCredential.user.uid, {
+        return await syncUserToFirestore(userCredential.user.uid, {
           email: userCredential.user.email || '',
           displayName: name,
         });
       }
+      return { isNew: false };
     } catch (error) {
       console.error("Error signing up with Email", error);
       throw error;

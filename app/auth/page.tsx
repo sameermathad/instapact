@@ -38,8 +38,12 @@ export default function AuthPage() {
            setLoading(false);
            return;
         }
-        await signUpWithEmail(email, password, name);
+        const { isNew } = await signUpWithEmail(email, password, name);
         toast.success("Account created successfully!");
+        if (isNew) {
+          router.push("/onboarding");
+          return;
+        }
       } else {
         await signInWithEmail(email, password);
         toast.success("Welcome back!");
@@ -59,11 +63,13 @@ export default function AuthPage() {
   const handleGoogleAuth = async () => {
     setLoading(true);
     try {
-      await signInWithGoogle();
+      const { isNew } = await signInWithGoogle();
       toast.success("Signed in with Google!");
       
       const params = new URLSearchParams(window.location.search);
-      if (params.get('from') === 'hero') {
+      if (isNew) {
+          router.push("/onboarding");
+      } else if (params.get('from') === 'hero') {
           router.push("/dashboard/new?from=hero");
       } else {
           router.push("/dashboard");

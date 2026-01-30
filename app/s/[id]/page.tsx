@@ -388,9 +388,9 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
                               })
                             });
                             const data = await res.json();
-                            if (data.success) {
-                              toast.success('Professional invitation sent to client!', { id: loadingToast });
-                            } else {
+                              if (data.success) {
+                                toast.success('Agreement link shared successfully.', { id: loadingToast });
+                              } else {
                               toast.error(data.error || 'Failed to send email', { id: loadingToast });
                             }
                           } catch (err) {
