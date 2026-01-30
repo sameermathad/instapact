@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export const metadata: Metadata = {
@@ -42,6 +43,27 @@ export default function FAQPage() {
     <div className="max-w-3xl mx-auto space-y-12 py-12">
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Frequently Asked Questions</h1>
+
+      <JsonLd 
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.instapact.in"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "FAQ",
+              "item": "https://www.instapact.in/faq"
+            }
+          ]
+        }}
+      />
         <p className="text-xl text-slate-600 font-light">
           Everything you need to know about InstaPact.
         </p>

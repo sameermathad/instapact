@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -8,6 +9,26 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="space-y-12">
+      <JsonLd 
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.instapact.in"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "About",
+              "item": "https://www.instapact.in/about"
+            }
+          ]
+        }}
+      />
       <div className="space-y-4">
         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Professional infrastructure for the gig economy.</h1>
         <p className="text-xl text-slate-600 leading-relaxed">

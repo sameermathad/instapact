@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "Terms and Conditions",
@@ -9,7 +10,30 @@ export default function TermsAndConditions() {
   return (
     <>
       <h1>Terms and Conditions</h1>
-      <p>Last updated: January 24, 2026</p>
+      <div className="text-sm text-slate-500 mb-8 mt-2" data-nosnippet>
+        Last updated: January 24, 2026
+      </div>
+
+      <JsonLd 
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.instapact.in"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Terms and Conditions",
+              "item": "https://www.instapact.in/terms"
+            }
+          ]
+        }}
+      />
 
       <h2>1. Agreement to Terms</h2>
       <p>

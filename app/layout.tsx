@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { SiteSchema } from "@/components/seo/site-schema";
 import { Inter, Merriweather, Mrs_Saint_Delafield } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -25,7 +26,10 @@ const signature = Mrs_Saint_Delafield({
 });
 
 export const metadata: Metadata = {
-  title: 'InstaPact - Freelancer Contracts in 30 Seconds',
+  title: {
+    default: 'InstaPact - Freelancer Contracts in 30 Seconds',
+    template: '%s | InstaPact'
+  },
   description: 'Create, sign, and manage legally binding freelancer agreements instantly. The #1 contract tool for Indian freelancers and agencies.',
   keywords: ["digital agreements", "e-signature", "freelance contracts", "business agreements", "legal tech", "digitally sign documents"],
   authors: [{ name: "Sameer Mathad" }],
@@ -33,6 +37,15 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.instapact.in"),
   alternates: {
     canonical: "/",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/logo/logo.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo/logo@3x.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   openGraph: {
     type: "website",
@@ -68,6 +81,10 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
 };
 
 export default function RootLayout({
@@ -109,31 +126,7 @@ export default function RootLayout({
         </Script>
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="beforeInteractive" />
         
-        {/* Structured Data for SEO / GEO (Generative Experience Optimization) */}
-        <Script id="json-ld" type="application/ld+json" strategy="afterInteractive">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "InstaPact",
-            "operatingSystem": "Web",
-            "applicationCategory": "BusinessApplication",
-            "offers": {
-              "@type": "Offer",
-              "price": "399",
-              "priceCurrency": "INR"
-            },
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "ratingCount": "120"
-            },
-            "author": {
-              "@type": "Organization",
-              "name": "InstaPact",
-              "url": "https://www.instapact.in"
-            }
-          })}
-        </Script>
+        <SiteSchema />
       </body>
     </html>
   );

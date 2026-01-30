@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -44,6 +45,27 @@ export default function BlogPage() {
           Legal insights, operational tips, and growth strategies for the modern freelancer and agency owner.
         </p>
       </div>
+
+      <JsonLd 
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.instapact.in"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Blog",
+              "item": "https://www.instapact.in/blog"
+            }
+          ]
+        }}
+      />
 
       <div className="grid gap-12 mt-12">
         {posts.map((post, idx) => (

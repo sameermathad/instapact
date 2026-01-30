@@ -17,8 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/shipping-policy',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: route === '' ? '2026-01-24' : '2026-01-20',
+    changeFrequency: (route === '' ? 'daily' : 'monthly') as any,
     priority: route === '' ? 1 : 0.8,
   }))
 

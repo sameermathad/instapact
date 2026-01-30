@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export default function Home() {
   const { user, loading, logout } = useAuth();
@@ -653,6 +654,64 @@ export default function Home() {
       </main>
 
       <Footer />
+
+      <JsonLd 
+        data={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "InstaPact",
+          "operatingSystem": "Web",
+          "applicationCategory": "BusinessApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "399",
+            "priceCurrency": "INR"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "120"
+          },
+          "author": {
+            "@type": "Organization",
+            "name": "InstaPact",
+            "url": "https://www.instapact.in"
+          }
+        }}
+      />
+
+      <JsonLd 
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "itemListElement": [
+            {
+              "@type": "SiteNavigationElement",
+              "position": 1,
+              "name": "Blog",
+              "url": "https://www.instapact.in/blog"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 2,
+              "name": "Pricing",
+              "url": "https://www.instapact.in/#pricing"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 3,
+              "name": "FAQ",
+              "url": "https://www.instapact.in/faq"
+            },
+            {
+              "@type": "SiteNavigationElement",
+              "position": 4,
+              "name": "Login",
+              "url": "https://www.instapact.in/auth"
+            }
+          ]
+        }}
+      />
     </div>
   );
 }

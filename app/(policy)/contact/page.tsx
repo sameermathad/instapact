@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -11,6 +12,26 @@ export default function ContactPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Contact Us</h1>
+      <JsonLd 
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.instapact.in"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Contact",
+              "item": "https://www.instapact.in/contact"
+            }
+          ]
+        }}
+      />
         <p className="mt-4 text-slate-600">
           We're here to help! If you have any questions, concerns, or feedback, please reach out to us using the details below.
         </p>
