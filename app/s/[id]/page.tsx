@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Contract } from '@/types';
-import { getContract, signContract, requestContractRevision } from '@/lib/contracts';
+import { getContract } from '@/lib/contracts';
 import { Textarea } from '@/components/ui/textarea';
 import { MessageSquare, Send } from 'lucide-react';
 import { ContractDisplay } from '@/components/signing/contract-display';
@@ -96,14 +96,21 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
       const ip = await getClientIp();
       const userAgent = navigator.userAgent;
 
-      const success = await signContract(
-        contract.id,
-        signerData.name,
-        signerData.email,
-        ip,
-        userAgent,
-        securityToken
-      );
+      const res = await fetch('/api/sign-contract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contractId: contract.id,
+          signerName: signerData.name,
+          signerEmail: signerData.email,
+          signerIp: ip,
+          userAgent,
+          token: securityToken
+        })
+      });
+      
+      const { success, error: signError } = await res.json();
+      if (signError) console.error('[SigningPage] Error:', signError);
 
       if (success) {
         // Update local state immediately
@@ -155,11 +162,20 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
     
     setRequestingRevision(true);
     try {
-      await requestContractRevision(contract.id, revisionText);
-      setRevisionRequested(true);
-      setContract({ ...contract, status: 'revision_requested', clientFeedback: revisionText });
-      setShowRevisionForm(false);
-      toast.success('Revision request sent to creator');
+      const res = await fetch('/api/request-revision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contractId: contract.id, feedback: revisionText })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRevisionRequested(true);
+        setContract({ ...contract, status: 'revision_requested', clientFeedback: revisionText });
+        setShowRevisionForm(false);
+        toast.success('Revision request sent to creator');
+      } else {
+        toast.error(data.error || 'Failed to send revision request');
+      }
     } catch (err) {
       console.error(err);
       toast.error('Failed to send revision request');

@@ -148,81 +148,7 @@ export async function getCreatorContracts(creatorId: string, status: 'active' | 
   }
 }
 
-// Sign a contract
-export async function signContract(
-  contractId: string,
-  signerName: string,
-  signerEmail: string,
-  signerIp: string,
-  userAgent: string,
-  token?: string
-): Promise<boolean> {
-  try {
-    let verified = false;
-
-    // 1. If a security token is provided, verify and use it
-    if (token) {
-      const q = query(
-        collection(db, 'auth_tokens'),
-        where('token', '==', token),
-        where('contractId', '==', contractId),
-        where('used', '==', false),
-        limit(1)
-      );
-      const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
-        const tokenDoc = snapshot.docs[0];
-        const tokenData = tokenDoc.data();
-        // Check expiry
-        if (tokenData.expiresAt.toDate() > new Date()) {
-          verified = true;
-          // Mark token as used immediately
-          await updateDoc(doc(db, 'auth_tokens', tokenDoc.id), { used: true, usedAt: Timestamp.now() });
-        }
-      }
-    }
-
-    // 2. Fallback to Mandatory Security Check: Verify that the email was successfully verified in the last 15 mins via OTP
-    if (!verified) {
-      const q = query(
-        collection(db, 'verification_codes'),
-        where('email', '==', signerEmail),
-        where('contractId', '==', contractId),
-        where('verified', '==', true),
-        limit(1)
-      );
-
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) {
-        console.error(`[contracts.ts] Signing failed: No verified code found for ${signerEmail} (and no valid token)`);
-        throw new Error('Email verification required before signing');
-      }
-      verified = true;
-    }
-
-    const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
-    const auditTrail: AuditTrail = {
-      signedAt: new Date(),
-      signerIp,
-      signerEmail,
-      signerName,
-      userAgent,
-    };
-
-    await updateDoc(docRef, {
-      status: 'signed',
-      auditTrail: {
-        ...auditTrail,
-        signedAt: Timestamp.fromDate(auditTrail.signedAt),
-      },
-    });
-
-    return true;
-  } catch (error) {
-    console.error('Error signing contract:', error);
-    return false;
-  }
-}
+// Note: signContract moved to /api/sign-contract
 
 // Get agreement count for a user, optionally filtered by date range
 export async function getAgreementCount(creatorId: string, period?: { start: Date; end: Date }): Promise<number> {
@@ -293,24 +219,7 @@ export async function unarchiveContract(contractId: string): Promise<void> {
     throw e;
   }
 }
-// Request a revision (Client Action)
-export async function requestContractRevision(
-  contractId: string,
-  clientFeedback: string
-): Promise<void> {
-  try {
-    const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
-    await updateDoc(docRef, {
-      status: 'revision_requested',
-      clientFeedback,
-      updatedAt: Timestamp.now(),
-    });
-    console.log(`[contracts.ts] Revision requested for contract ${contractId}`);
-  } catch (e) {
-    console.error(`[contracts.ts] Failed to request revision for ${contractId}`, e);
-    throw e;
-  }
-}
+// Note: requestContractRevision moved to /api/request-revision
 
 // Update a contract's metadata or legal text
 export async function updateContractFields(

@@ -6,18 +6,8 @@ service cloud.firestore {
       allow get: if true;
       allow list: if request.auth != null && resource.data.creatorId == request.auth.uid;
       
-      // Hardened Update: Only allow signing if the data provided is sane
-      // and prevent modification of legalText/creatorEmail after signing
-      allow update: if (
-        request.resource.data.status == 'signed' && 
-        resource.data.status == 'pending' &&
-        request.resource.data.legalText == resource.data.legalText &&
-        request.resource.data.creatorId == resource.data.creatorId
-      ) || (
-        request.auth != null && resource.data.creatorId == request.auth.uid
-      );
-      
-      allow delete: if request.auth != null && resource.data.creatorId == request.auth.uid;
+      // Production Rule: Only creator can update
+      allow update, delete: if request.auth != null && resource.data.creatorId == request.auth.uid;
     }
 
     match /users/{userId} {
