@@ -384,6 +384,15 @@ const formatToHtml = (text: string) => {
           </CardHeader>
           <CardContent className="pt-8 space-y-8">
               <form id="contract-form" onSubmit={handleSubmit} className="space-y-6">
+                  {!formData.clientEmail && (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 animate-in fade-in duration-300">
+                      <Shield className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-xs text-amber-800">
+                        <p className="font-bold">Anonymous Link Mode</p>
+                        <p>No client email set. Anyone with the link will be able to sign after verifying their identity.</p>
+                      </div>
+                    </div>
+                  )}
                   {currentTemplateDef.fields.map(renderField)}
                   
                   {/* Dynamic Milestones Field */}

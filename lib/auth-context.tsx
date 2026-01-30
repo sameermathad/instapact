@@ -12,6 +12,7 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from './firebase';
 import { useRouter } from 'next/navigation';
+import { syncUserToFirestore } from './user';
 
 interface AuthContextType {
   user: User | null;
@@ -47,7 +48,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      if (result.user) {
+        await syncUserToFirestore(result.user.uid, {
+          email: result.user.email || '',
+          displayName: result.user.displayName || '',
+          photoURL: result.user.photoURL || '',
+        });
+      }
     } catch (error) {
       console.error("Error signing in with Google", error);
       throw error;
@@ -69,6 +77,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (userCredential.user) {
         await updateProfile(userCredential.user, {
           displayName: name
+        });
+        await syncUserToFirestore(userCredential.user.uid, {
+          email: userCredential.user.email || '',
+          displayName: name,
         });
       }
     } catch (error) {

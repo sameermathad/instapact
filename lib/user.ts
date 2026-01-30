@@ -34,6 +34,7 @@ export interface UserProfile {
   currentPeriodStart?: any; // Firestore Timestamp
   currentPeriodEnd?: any;   // Firestore Timestamp
   
+  createdAt: Date;
   updatedAt: Date;
 }
 
@@ -79,14 +80,50 @@ export async function updateUserProfile(uid: string, data: Partial<UserProfile>)
   }
 }
 
+export async function syncUserToFirestore(uid: string, data: { email: string; displayName?: string; photoURL?: string }): Promise<void> {
+  try {
+    const docRef = doc(db, USERS_COLLECTION, uid);
+    const docSnap = await getDoc(docRef);
+    const now = new Date();
+
+    if (!docSnap.exists()) {
+      // New User
+      const newProfile: UserProfile = {
+        uid,
+        email: data.email,
+        displayName: data.displayName || data.email.split('@')[0],
+        brandLogo: data.photoURL || '',
+        plan: 'free',
+        credits: 0,
+        lifetimeCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      };
+      await setDoc(docRef, newProfile);
+      console.log(`[user.ts] Created new profile for ${uid}`);
+    } else {
+      // Existing User - Update basic info if changed
+      await updateDoc(docRef, {
+        email: data.email,
+        displayName: data.displayName || docSnap.data().displayName,
+        updatedAt: now,
+      });
+      console.log(`[user.ts] Updated profile for ${uid}`);
+    }
+  } catch (error) {
+    console.error("Error syncing user to Firestore:", error);
+    // Don't throw, we don't want to block login/signup if DB sync fails
+  }
+}
+
 export async function incrementUserContractCount(uid: string): Promise<void> {
     try {
         const docRef = doc(db, USERS_COLLECTION, uid);
         await updateDoc(docRef, {
-            lifetimeCount: increment(1)
+            lifetimeCount: increment(1),
+            updatedAt: new Date(),
         });
     } catch (error) {
         console.error("Error incrementing contract count:", error);
-        // If doc doesn't exist, create it (edge case)
     }
 }

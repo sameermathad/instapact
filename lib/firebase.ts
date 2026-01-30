@@ -15,9 +15,16 @@ const firebaseConfig = {
 // Initialize Firebase (prevent duplicate initialization)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
+// Determine Firestore database ID
+// Default is '(default)' for dev, 'instapact-prod' for prod
+const databaseId = process.env.NEXT_PUBLIC_FIREBASE_DB_ID || 
+  (process.env.NODE_ENV === 'production' ? 'instapact-prod' : '(default)');
+
 // Firebase services
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = databaseId === '(default)' ? getFirestore(app) : getFirestore(app, databaseId);
+
+console.log(`[firebase.ts] Using Firestore database: ${databaseId}`);
 
 // Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();

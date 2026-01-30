@@ -115,7 +115,7 @@ This Amendment shall be governed by the laws applicable to the original agreemen
         label: 'Client Email',
         type: 'email',
         placeholder: 'client@example.com',
-        required: true,
+        required: false,
       },
       {
         name: 'description',
@@ -199,7 +199,7 @@ This Agreement shall be governed by applicable laws.`,
         label: 'Client Email',
         type: 'email',
         placeholder: 'client@example.com',
-        required: true,
+        required: false,
       },
       {
         name: 'description',

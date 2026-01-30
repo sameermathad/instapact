@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Contract } from '@/types';
 import { getContract, signContract, requestContractRevision } from '@/lib/contracts';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +41,9 @@ const MOCK_CONTRACT: Contract = {
 };
 
 export default function SigningPage({ params }: { params: Promise<{ id: string }> }) {
+  const searchParams = useSearchParams();
+  const securityToken = searchParams.get('t') || undefined;
+  
   // Unwrap params using React.use()
   const resolvedParams = use(params);
   const { user: authUser } = useAuth();
@@ -97,7 +101,8 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
         signerData.name,
         signerData.email,
         ip,
-        userAgent
+        userAgent,
+        securityToken
       );
 
       if (success) {
@@ -307,6 +312,9 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
                        isSubmitting={signing} 
                        defaultEmail={contract.meta.clientEmail}
                        defaultName={contract.meta.clientName}
+                       creatorName={contract.creatorName}
+                       contractId={contract.id}
+                       securityToken={securityToken}
                        onRevisionRequest={() => setShowRevisionForm(true)}
                      />
                   </div>
@@ -356,11 +364,44 @@ export default function SigningPage({ params }: { params: Promise<{ id: string }
                       <Share2 className="w-5 h-5 text-indigo-600" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">Share Link</h4>
-                      <p className="text-xs text-slate-500">Agreement ready to be signed.</p>
+                      <h4 className="text-sm font-bold text-slate-900">Share Agreement</h4>
+                      <p className="text-xs text-slate-500">Ready for client signature.</p>
                     </div>
                   </div>
                   <div className="flex w-full sm:w-auto gap-2">
+                    {contract.meta.clientEmail && (
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        className="bg-indigo-600 hover:bg-indigo-700 font-bold"
+                        onClick={async () => {
+                          const loadingToast = toast.loading('Sending invitation email...');
+                          try {
+                            const res = await fetch('/api/send-agreement', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                contractId: contract.id,
+                                clientEmail: contract.meta.clientEmail,
+                                creatorName: contract.creatorName,
+                                documentTitle: contract.meta.documentTitle
+                              })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                              toast.success('Professional invitation sent to client!', { id: loadingToast });
+                            } else {
+                              toast.error(data.error || 'Failed to send email', { id: loadingToast });
+                            }
+                          } catch (err) {
+                            toast.error('An error occurred', { id: loadingToast });
+                          }
+                        }}
+                      >
+                        <Send className="w-4 h-4 mr-2" />
+                        Send via Email
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       size="sm"

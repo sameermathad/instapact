@@ -9,6 +9,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   Timestamp,
   deleteDoc,
 } from 'firebase/firestore';
@@ -150,11 +151,53 @@ export async function signContract(
   signerName: string,
   signerEmail: string,
   signerIp: string,
-  userAgent: string
+  userAgent: string,
+  token?: string
 ): Promise<boolean> {
   try {
-    const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
+    let verified = false;
 
+    // 1. If a security token is provided, verify and use it
+    if (token) {
+      const q = query(
+        collection(db, 'auth_tokens'),
+        where('token', '==', token),
+        where('contractId', '==', contractId),
+        where('used', '==', false),
+        limit(1)
+      );
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const tokenDoc = snapshot.docs[0];
+        const tokenData = tokenDoc.data();
+        // Check expiry
+        if (tokenData.expiresAt.toDate() > new Date()) {
+          verified = true;
+          // Mark token as used immediately
+          await updateDoc(doc(db, 'auth_tokens', tokenDoc.id), { used: true, usedAt: Timestamp.now() });
+        }
+      }
+    }
+
+    // 2. Fallback to Mandatory Security Check: Verify that the email was successfully verified in the last 15 mins via OTP
+    if (!verified) {
+      const q = query(
+        collection(db, 'verification_codes'),
+        where('email', '==', signerEmail),
+        where('contractId', '==', contractId),
+        where('verified', '==', true),
+        limit(1)
+      );
+
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        console.error(`[contracts.ts] Signing failed: No verified code found for ${signerEmail} (and no valid token)`);
+        throw new Error('Email verification required before signing');
+      }
+      verified = true;
+    }
+
+    const docRef = doc(db, CONTRACTS_COLLECTION, contractId);
     const auditTrail: AuditTrail = {
       signedAt: new Date(),
       signerIp,
