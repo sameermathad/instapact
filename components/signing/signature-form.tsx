@@ -238,7 +238,21 @@ export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultNam
         )}
 
         {step === 'consent' && (
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {/* Signature Identity Preview */}
+            <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                  {name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-500">Signing as</div>
+                  <div className="text-xl font-bold text-slate-900 truncate">{name}</div>
+                  <div className="text-sm text-slate-500 truncate">{email}</div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-start space-x-4 p-5 bg-indigo-50/30 rounded-xl border border-indigo-100">
               <Checkbox 
                 id="consent" 
@@ -254,7 +268,7 @@ export function SignatureForm({ onSubmit, isSubmitting, defaultEmail, defaultNam
               </div>
             </div>
             <div className="flex gap-4">
-              <Button variant="ghost" type="button" onClick={() => setStep('otp')} className="flex-1" disabled={isSubmitting}>Back</Button>
+              <Button variant="ghost" type="button" onClick={() => setStep(preVerified ? 'details' : 'otp')} className="flex-1" disabled={isSubmitting}>Back</Button>
               <Button type="submit" className="flex-[2] h-16 text-xl font-bold bg-indigo-600 shadow-xl shadow-indigo-100" disabled={isSubmitting || !consent}>
                 {isSubmitting ? (
                   <>
