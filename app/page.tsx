@@ -664,8 +664,8 @@ export default function Home() {
           "applicationCategory": "BusinessApplication",
           "offers": {
             "@type": "Offer",
-            "price": "399",
-            "priceCurrency": "INR"
+            "price": "0",
+            "priceCurrency": "USD"
           },
           "aggregateRating": {
             "@type": "AggregateRating",
@@ -688,26 +688,30 @@ export default function Home() {
             {
               "@type": "SiteNavigationElement",
               "position": 1,
-              "name": "Blog",
-              "url": "https://www.instapact.in/blog"
+              "name": "Login",
+              "description": "Access your dashboard and manage agreements.",
+              "url": "https://www.instapact.in/auth"
             },
             {
               "@type": "SiteNavigationElement",
               "position": 2,
               "name": "Pricing",
+              "description": "Simple, transparent pricing for freelancers and agencies.",
               "url": "https://www.instapact.in/#pricing"
             },
             {
               "@type": "SiteNavigationElement",
               "position": 3,
-              "name": "FAQ",
-              "url": "https://www.instapact.in/faq"
+              "name": "Blog",
+              "description": "Legal insights and growth strategies.",
+              "url": "https://www.instapact.in/blog"
             },
             {
               "@type": "SiteNavigationElement",
               "position": 4,
-              "name": "Login",
-              "url": "https://www.instapact.in/auth"
+              "name": "FAQ",
+              "description": "Frequently asked questions about InstaPact.",
+              "url": "https://www.instapact.in/faq"
             }
           ]
         }}

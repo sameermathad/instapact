@@ -30,8 +30,8 @@ export const metadata: Metadata = {
     default: 'InstaPact - Freelancer Contracts in 30 Seconds',
     template: '%s | InstaPact'
   },
-  description: 'Create, sign, and manage legally binding freelancer agreements instantly. The #1 contract tool for Indian freelancers and agencies.',
-  keywords: ["digital agreements", "e-signature", "freelance contracts", "business agreements", "legal tech", "digitally sign documents"],
+  description: 'Create, sign, and manage legally binding freelancer agreements instantly. The #1 contract tool for freelancers and agencies worldwide.',
+  keywords: ["digital agreements", "e-signature", "freelance contracts", "business agreements", "legal tech", "digitally sign documents", "consulting agreement template", "scope of work template", "nda generator", "electronic signature free"],
   authors: [{ name: "Sameer Mathad" }],
   creator: "Sameer Mathad",
   metadataBase: new URL("https://www.instapact.in"),
@@ -49,11 +49,11 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_IN",
+    locale: "en_US",
     url: "https://www.instapact.in",
     siteName: "InstaPact",
     title: 'InstaPact - Freelancer Contracts in 30 Seconds',
-    description: 'Stop using Word docs. Create secure legal agreements in clicks.',
+    description: 'Stop using Word docs. Create secure legal agreements in clicks. Trusted by creative professionals globally.',
     images: [
       {
         url: "/og-image.png",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: 'InstaPact - Freelancer Contracts in 30 Seconds',
-    description: 'Stop using Word docs. Create secure legal agreements in clicks.',
+    description: 'Stop using Word docs. Create secure legal agreements in clicks. Trusted by creative professionals globally.',
     images: ["/og-image.png"],
     creator: "@instapact",
   },

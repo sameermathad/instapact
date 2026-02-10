@@ -10,6 +10,8 @@ export const SiteSchema: React.FC = () => {
     "logo": "https://www.instapact.in/logo/logo@3x.png",
     "sameAs": [
       "https://twitter.com/instapact",
+      "https://www.instagram.com/instapact",
+      "https://www.linkedin.com/company/instapact"
     ]
   };
 
